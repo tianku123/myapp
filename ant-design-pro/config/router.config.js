@@ -1,4 +1,28 @@
 export default [
+  // blog
+  {
+    path: '/blog',
+    // component: '../layouts/blog/BlogLayout',
+    component: '../layouts/blog/Center/BlogLayout',
+    routes: [
+      {
+        path: '/blog/center',
+        redirect: '/blog/articles',
+      },
+      {
+        path: '/blog/articles',
+        component: '../layouts/blog/Center/Articles',
+      },
+      {
+        path: '/blog/applications',
+        component: '../layouts/blog/Center/Applications',
+      },
+      {
+        path: '/blog/projects',
+        component: '../layouts/blog/Center/Projects',
+      },
+    ],
+  },
   // user
   {
     path: '/user',

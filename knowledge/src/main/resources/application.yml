@@ -7,23 +7,23 @@ mybatis:
   mapper-locations: classpath:mapper/rh/study/knowledge/dao/**/*.xml
   type-aliases-package: rh.study.knowledge.entity
   configuration:
-    #ÍÕ·åÃüÃû¹æ·¶ Èç£ºÊı¾İ¿â×Ö¶ÎÊÇ  order_id ÄÇÃ´ ÊµÌå×Ö¶Î¾ÍÒªĞ´³É orderId
+    #é©¼å³°å‘½åè§„èŒƒ å¦‚ï¼šæ•°æ®åº“å­—æ®µæ˜¯  order_id é‚£ä¹ˆ å®ä½“å­—æ®µå°±è¦å†™æˆ orderId
     map-underscore-to-camel-case: true
-# Èç¹ûÏë¿´µ½mybatisÈÕÖ¾ĞèÒª×öÈçÏÂÅäÖÃ
+# å¦‚æœæƒ³çœ‹åˆ°mybatisæ—¥å¿—éœ€è¦åšå¦‚ä¸‹é…ç½®
 logging:
   level:
     com:
       battcn: DEBUG
-########## Í¨ÓÃMapper ##########
-# Ö÷¼ü×ÔÔö»ØĞ´·½·¨,Ä¬ÈÏÖµMYSQL,ÏêÏ¸ËµÃ÷Çë¿´ÎÄµµ
+########## é€šç”¨Mapper ##########
+# ä¸»é”®è‡ªå¢å›å†™æ–¹æ³•,é»˜è®¤å€¼MYSQL,è¯¦ç»†è¯´æ˜è¯·çœ‹æ–‡æ¡£
 mapper:
   identity: MYSQL
   mappers: tk.mybatis.mapper.common.BaseMapper
-# ÉèÖÃ insert ºÍ update ÖĞ£¬ÊÇ·ñÅĞ¶Ï×Ö·û´®ÀàĞÍ!=''
+# è®¾ç½® insert å’Œ update ä¸­ï¼Œæ˜¯å¦åˆ¤æ–­å­—ç¬¦ä¸²ç±»å‹!=''
   not-empty: true
-# Ã¶¾Ù°´¼òµ¥ÀàĞÍ´¦Àí
+# æšä¸¾æŒ‰ç®€å•ç±»å‹å¤„ç†
   enum-as-simple-type: true
-########## ·ÖÒ³²å¼ş ##########
+########## åˆ†é¡µæ’ä»¶ ##########
 pagehelper:
   helper-dialect: mysql
   params: count=countSql
