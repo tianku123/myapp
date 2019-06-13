@@ -4,13 +4,14 @@
         "http://mybatis.org/dtd/mybatis-generator-config_1_0.dtd">
 
 <generatorConfiguration>
-    <context id="MysqlContext" targetRuntime="MyBatis3" defaultModelType="flat">
+    <!-- defaultModelType 属性值 flat:该模型为每一张表只生成一个实体类 -->
+    <!-- targetRuntime 属性值 MyBatis3Simple:不生成和Example查询有关的内容，生成实体类、Mapper -->
+    <context id="MysqlContext" targetRuntime="MyBatis3Simple" defaultModelType="flat">
+        <!-- 表名的前后缀，例如表名为： user info 中间有空格，就需要前后缀包起来才能正常使用 -->
         <property name="beginningDelimiter" value="`"/>
         <property name="endingDelimiter" value="`"/>
-
-        <commentGenerator>
-            <property name="suppressDate" value="true"/>
-        </commentGenerator>
+        <!-- 生成注释 -->
+        <commentGenerator type="rh.study.mybatis.generator.MyCommentGenerator"/>
 
         <jdbcConnection driverClass="com.mysql.jdbc.Driver"
                         connectionURL="jdbc:mysql://localhost:3306/knowledge"
@@ -18,16 +19,34 @@
                         password="root">
         </jdbcConnection>
 
+        <javaTypeResolver type="rh.study.mybatis.generator.MyJavaTypeResolver"/>
+
+        <!--
+         targetPackage: 生成实体类存放的包名，一般就是放在该包下。实际还会受到其他配置的影响(<table>中会提到)
+         targetProject: 指定目标项目路径，可以是绝对路径或相对路径（如 targetProject="src/main/java"）
+         -->
         <javaModelGenerator targetPackage="test.model" targetProject="src\main\java">
+            <!-- 是否对数据库查询结果进行trim操作，如果设置为true就会生成类似这样
+            public void setUsername(String username) {this.username = username == null ? null : username.trim();}的setter方法。
+            默认值为false
+             -->
             <property name="trimStrings" value="true" />
         </javaModelGenerator>
-
-        <sqlMapGenerator targetPackage="test.xml"  targetProject="src\main\resources"/>
-
+        <!--
+        如果指定了一个<sqlMapGenerator>，那么MBG将只生成XML的SQL映射文件和实体类
+        如果没有指定<sqlMapGenerator>，那么MBG将只生成实体类
+         targetPackage: 生成实体类存放的包名，一般就是放在该包下。实际还会受到其他配置的影响(<table>中会提到)
+         targetProject: 指定目标项目路径，可以是绝对路径或相对路径（如 targetProject="src/main/resources"）
+         -->
+        <sqlMapGenerator targetPackage="test.dao"  targetProject="src\main\resources"/>
+        <!-- 如果不配置该元素，就不会生成Mapper接口 -->
         <javaClientGenerator type="XMLMAPPER" targetPackage="test.dao"  targetProject="src\main\java"/>
 
-        <table tableName="%">
+        <table tableName="knowledge">
             <generatedKey column="id" sqlStatement="Mysql"/>
+        </table>
+        <table tableName="t_order">
+            <generatedKey column="f_id" sqlStatement="Mysql"/>
         </table>
     </context>
 </generatorConfiguration>
