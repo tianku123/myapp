@@ -13,9 +13,17 @@ export default {
   effects: {
     *fetch({ payload }, { call, put }) {
       const response = yield call(queryRule, payload);
+      let { data } = response;
       yield put({
         type: 'save',
-        payload: response,
+        payload: {
+          list: data ? response.data.rows : [],
+          pagination: data ? {
+            total: response.data.total,
+            pageSize: response.data.pageSize,
+            current: response.data.current
+          } : {}
+        },
       });
     },
     *add({ payload, callback }, { call, put }) {

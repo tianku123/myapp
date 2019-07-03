@@ -51,13 +51,13 @@
 			<artifactId>mapper-spring-boot-starter</artifactId>
 			<version>2.0.2</version>
 		</dependency>
-		<!-- 分页插件
-     文档地址：https://github.com/pagehelper/Mybatis-PageHelper/blob/master/wikis/zh/HowToUse.md -->
+		<!-- 分页插件 https://mvnrepository.com/artifact/com.github.pagehelper/pagehelper-spring-boot-starter -->
 		<dependency>
 			<groupId>com.github.pagehelper</groupId>
 			<artifactId>pagehelper-spring-boot-starter</artifactId>
-			<version>1.2.5</version>
+			<version>1.2.12</version>
 		</dependency>
+
 		<!-- https://mvnrepository.com/artifact/org.mybatis.generator/mybatis-generator-core -->
 		<dependency>
 			<groupId>org.mybatis.generator</groupId>

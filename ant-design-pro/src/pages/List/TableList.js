@@ -283,50 +283,20 @@ class TableList extends PureComponent {
 
   columns = [
     {
-      title: '规则名称',
-      dataIndex: 'name',
+      title: '名称',
+      dataIndex: 'fname',
     },
     {
-      title: '描述',
-      dataIndex: 'desc',
+      title: '地址',
+      dataIndex: 'faddress',
     },
     {
-      title: '服务调用次数',
-      dataIndex: 'callNo',
-      sorter: true,
-      align: 'right',
-      render: val => `${val} 万`,
-      // mark to display a total number
-      needTotal: true,
+      title: '电话',
+      dataIndex: 'fphone',
     },
     {
-      title: '状态',
-      dataIndex: 'status',
-      filters: [
-        {
-          text: status[0],
-          value: 0,
-        },
-        {
-          text: status[1],
-          value: 1,
-        },
-        {
-          text: status[2],
-          value: 2,
-        },
-        {
-          text: status[3],
-          value: 3,
-        },
-      ],
-      render(val) {
-        return <Badge status={statusMap[val]} text={status[val]} />;
-      },
-    },
-    {
-      title: '上次调度时间',
-      dataIndex: 'updatedAt',
+      title: '时间',
+      dataIndex: 'fsaleTime',
       sorter: true,
       render: val => <span>{moment(val).format('YYYY-MM-DD HH:mm:ss')}</span>,
     },
@@ -360,7 +330,7 @@ class TableList extends PureComponent {
     }, {});
 
     const params = {
-      currentPage: pagination.current,
+      current: pagination.current,
       pageSize: pagination.pageSize,
       ...formValues,
       ...filters,
@@ -653,6 +623,7 @@ class TableList extends PureComponent {
               selectedRows={selectedRows}
               loading={loading}
               data={data}
+              rowKey={record => record.fid}
               columns={this.columns}
               onSelectRow={this.handleSelectRows}
               onChange={this.handleStandardTableChange}

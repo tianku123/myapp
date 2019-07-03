@@ -10,7 +10,7 @@ export async function queryActivities() {
 }
 
 export async function queryRule(params) {
-  return request(`/api/rule?${stringify(params)}`);
+  return request(`/api/order/list?${stringify(params)}`);
 }
 
 export async function removeRule(params) {

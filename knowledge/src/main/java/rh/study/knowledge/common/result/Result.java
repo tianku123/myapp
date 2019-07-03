@@ -9,18 +9,18 @@ import java.io.Serializable;
  */
 @Data
 public class Result implements Serializable {
-    private Integer code;
+    private Integer status;
     private String message;
     private Object data;
 
-    public Result(Integer code, String message, Object data) {
-        this.code = code;
+    public Result(Integer status, String message, Object data) {
+        this.status = status;
         this.message = message;
         this.data = data;
     }
 
     public Result(ResultEnum resultEnum, Object data) {
-        this.code = resultEnum.getCode();
+        this.status = resultEnum.getStatus();
         this.message = resultEnum.getMessage();
         this.data = data;
     }

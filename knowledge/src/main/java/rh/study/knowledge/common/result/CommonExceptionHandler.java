@@ -20,7 +20,7 @@ public class CommonExceptionHandler {
     @ExceptionHandler(Exception.class)
     @ResponseBody
     public Result exceptionHandler(Exception e){
-        return Result.failure(-1, e.getMessage());
+        return Result.failure(ResultEnum.FAIL);
     }
 
     /**

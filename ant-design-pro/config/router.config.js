@@ -6,7 +6,7 @@ export default [
     component: '../layouts/blog/Center/BlogLayout',
     routes: [
       {
-        path: '/blog/center',
+        path: '/blog',
         redirect: '/blog/articles',
       },
       {

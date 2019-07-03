@@ -4,18 +4,21 @@ package rh.study.knowledge.common.result;
  * 状态码枚举
  */
 public enum ResultEnum {
-    SUCCESS(0,"成功")
+    // 服务器成功返回请求的数据。
+    SUCCESS(200,"成功"),
+    // 服务器发生错误，请检查服务器。
+    FAIL(500,"失败")
     ;
-    private Integer code;
+    private Integer status;
     private String message;
 
-    ResultEnum(Integer code, String message) {
-        this.code = code;
+    ResultEnum(Integer status, String message) {
+        this.status = status;
         this.message = message;
     }
 
-    public Integer getCode() {
-        return this.code;
+    public Integer getStatus() {
+        return this.status;
     }
 
     public String getMessage() {
