@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="rh.study.knowledge.dao.redis.MonitorMapper">
+
+
+    <select id="list" resultType="map">
+        SELECT a.ip as ip ,
+        a.`master` as `master`, a.intro as intro, b.name as name,
+        monitor.id,
+        monitor.ip_id,
+        monitor.client_num,
+        monitor.commands,
+        monitor.memory_used,
+        monitor.redis_keys,
+        monitor.create_time
+        from `monitor` as `monitor` LEFT JOIN redis_ip a ON monitor.ip_id=a.id
+        LEFT JOIN redis_group b ON a.group_id = b.id
+        WHERE monitor.ip_id=#{ipId}
+    </select>
+    
+    <insert id="batchInsert">
+        INSERT INTO `monitor` (
+            ip_id,
+            client_num,
+            commands,
+            memory_used,
+            redis_keys,
+            create_time
+        ) VALUES
+          <foreach collection="monitorList" item="item" separator=",">
+              ( #{item.ipId},
+              #{item.clientNum},
+              #{item.commands},
+              #{item.memoryUsed},
+              #{item.redisKeys},
+              #{item.createTime})
+          </foreach>
+
+    </insert>
+</mapper>
