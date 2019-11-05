@@ -1,5 +1,6 @@
 import React, { PureComponent, Fragment } from 'react';
 import { connect } from 'dva';
+import moment from 'moment';
 import {
   Row,
   Col,
@@ -47,37 +48,55 @@ class RedisGroupList extends PureComponent {
       title: '名称',
       dataIndex: 'name',
     },
+    // {
+    //   title: '排序',
+    //   dataIndex: 'ord',
+    // },
+    {
+      title: '状态',
+      dataIndex: 'stat',
+      render: val => {
+        if (val == 0 || val == null) {
+          return "正常";
+        } else if (val == 1) {
+          return <span style={{color: 'red'}}>删除</span>
+        }
+      },
+    },
     {
       title: '说明',
       dataIndex: 'intro',
     },
     {
-      title: '排序',
-      dataIndex: 'ord',
+      title: '创建时间',
+      dataIndex: 'createTime',
+      // sorter: true,
+      render: val => {return val != null ? <span>{moment(val).format('YYYY-MM-DD HH:mm:ss')}</span> : ''},
     },
-    // {
-    //   title: '时间',
-    //   dataIndex: 'fsaleTime',
-    //   sorter: true,
-    //   render: val => <span>{moment(val).format('YYYY-MM-DD HH:mm:ss')}</span>,
-    // },
+    {
+      title: '更新时间',
+      dataIndex: 'updateTime',
+      // sorter: true,
+    render: val => {return val != null ? <span>{moment(val).format('YYYY-MM-DD HH:mm:ss')}</span> : ''},
+    },
     {
       title: '操作',
-      render: (text, record) => (
-        <Fragment>
-          <Popconfirm
-            title="确定删除吗?"
-            onConfirm={() => this.handleDelete(record)}
-            // onCancel={cancel}
-            okText="Yes"
-            cancelText="No"
-          >
-            <a href="#">删除</a>
-          </Popconfirm>
-          <Divider type="vertical" />
-          <a onClick={() => this.handleModalVisible(true, false, record)}>编辑</a>
-        </Fragment>
-      ),
+      render: (text, record) => {
+        return record.stat == 1 ? null :
+          <Fragment>
+            <Popconfirm
+              title="确定删除吗?"
+              onConfirm={() => this.handleDelete(record)}
+              // onCancel={cancel}
+              okText="是"
+              cancelText="否"
+            >
+              <a href="#">删除</a>
+            </Popconfirm>
+            <Divider type="vertical" />
+            <a onClick={() => this.handleModalVisible(true, false, record)}>编辑</a>
+          </Fragment>
+      }
     },
   ];
 
@@ -290,10 +309,10 @@ class RedisGroupList extends PureComponent {
     };
     
     return (
-      <PageHeaderWrapper title="查询表格">
+      <PageHeaderWrapper >
         <Card bordered={false}>
           <div className={styles.tableList}>
-            <div className={styles.tableListForm}>{this.renderSimpleForm()}</div>
+            {/* <div className={styles.tableListForm}>{this.renderSimpleForm()}</div> */}
             <div className={styles.tableListOperator}>
               <Button icon="plus" type="primary" onClick={() => this.handleModalVisible(true, true)}>
                 新建

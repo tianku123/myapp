@@ -35,7 +35,7 @@ export default {
       if (response.status == 200 && response.data > 0) {
         message.success('添加成功');
       } else {
-        message.success('添加失败');
+        message.error(response.message);
       }
       yield put({
         type: 'save',
@@ -48,7 +48,7 @@ export default {
       if (response.status == 200 && response.data > 0) {
         message.success('删除成功');
       } else {
-        message.success('删除失败');
+        message.error('删除失败');
       }
       // yield put({
       //   type: 'save',
@@ -66,6 +66,11 @@ export default {
     },
     *update({ payload, callback }, { call, put }) {
       const response = yield call(updateRule, payload);
+      if (response.status == 200 && response.data > 0) {
+        message.success('操作成功');
+      } else {
+        message.error(response.message);
+      }
       yield put({
         type: 'save',
         payload: response,

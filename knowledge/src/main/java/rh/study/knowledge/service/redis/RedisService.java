@@ -140,7 +140,7 @@ public class RedisService {
      * @throws IOException
      */
     public XSSFWorkbook getRedisExcel() throws IOException {
-        List<Map<String, Object>> ipLst = redisIpMapper.list();
+        List<Map<String, Object>> ipLst = redisIpMapper.list(null, null, 0);
         // 分组IP文件模板地址
 
         long time = new Date().getTime() / 1000;
@@ -225,7 +225,7 @@ public class RedisService {
 
 
     public int saveRedisMonitor() {
-        List<Map<String, Object>> ipLst = redisIpMapper.list();
+        List<Map<String, Object>> ipLst = redisIpMapper.list(null, null, 0);
         // 分组IP文件模板地址
 
         long time = new Date().getTime() / 1000;

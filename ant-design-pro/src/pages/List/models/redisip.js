@@ -1,4 +1,6 @@
-import { queryRule, removeRule, addRule, updateRule, queryById, exportRedisMonitor } 
+import { queryRule, removeRule, addRule, updateRule, queryById, exportRedisMonitor 
+  , queryRedisIp
+} 
 from '@/services/redis/ipapi';
 import { queryRedisGroup } from '@/services/redis/groupapi';
 import {
@@ -15,6 +17,7 @@ export default {
     },
     fetchByIdData:{},
     redisGroupData:[],
+    redisIpData:[],
   },
 
   effects: {
@@ -38,7 +41,7 @@ export default {
       if (response.status == 200 && response.data > 0) {
         message.success('添加成功');
       } else {
-        message.success('添加失败');
+        message.error(response.message);
       }
       yield put({
         type: 'save',
@@ -51,7 +54,7 @@ export default {
       if (response.status == 200 && response.data > 0) {
         message.success('删除成功');
       } else {
-        message.success('删除失败');
+        message.error('删除失败');
       }
       // yield put({
       //   type: 'save',
@@ -73,10 +76,23 @@ export default {
         type: 'redisGroupData',
         payload: response,
       });
-      if (callback) callback();
+      if (callback) callback(response);
+    },
+    *redisIp({ payload, callback }, { call, put }) {
+      const response = yield call(queryRedisIp, payload);
+      yield put({
+        type: 'redisIpData',
+        payload: response,
+      });
+      if (callback) callback(response);
     },
     *update({ payload, callback }, { call, put }) {
       const response = yield call(updateRule, payload);
+      if (response.status == 200 && response.data > 0) {
+        message.success('操作成功');
+      } else {
+        message.error(response.message);
+      }
       yield put({
         type: 'save',
         payload: response,
@@ -111,6 +127,12 @@ export default {
       return {
         ...state,
         redisGroupData: action.payload.data,
+      };
+    },
+    redisIpData(state, action) {
+      return {
+        ...state,
+        redisIpData: action.payload.data,
       };
     },
   },

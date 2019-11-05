@@ -367,9 +367,9 @@ class MonitorList extends PureComponent {
               <Button type="primary" htmlType="submit">
                 查询
               </Button>
-              <Button style={{ marginLeft: 8 }} onClick={this.handleFormReset}>
+              {/* <Button style={{ marginLeft: 8 }} onClick={this.handleFormReset}>
                 重置
-              </Button>
+              </Button> */}
             </span>
           </Col>
         </Row>
@@ -403,7 +403,7 @@ class MonitorList extends PureComponent {
     };
     
     return (
-      <PageHeaderWrapper title="查询表格">
+      <PageHeaderWrapper>
         <Card bordered={false}>
           <div className={styles.tableList}>
             <div className={styles.tableListForm}>{this.renderSimpleForm()}</div>

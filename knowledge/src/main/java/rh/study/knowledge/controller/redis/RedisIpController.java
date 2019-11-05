@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import rh.study.knowledge.common.result.PageResult;
 import rh.study.knowledge.common.result.Result;
+import rh.study.knowledge.entity.common.StatParam;
 import rh.study.knowledge.entity.redis.RedisIp;
 import rh.study.knowledge.service.redis.RedisIpService;
 
@@ -17,8 +18,13 @@ public class RedisIpController {
     private RedisIpService redisIpService;
 
     @GetMapping(value = "/list")
-    public Result list(@RequestParam(defaultValue = "1") int current, @RequestParam(defaultValue = "10") int pageSize) {
-        PageResult pageResult = redisIpService.listPagable(current, pageSize);
+    public Result list(@RequestParam(defaultValue = "1") int current,
+                       @RequestParam(defaultValue = "10") int pageSize,
+                       @RequestParam(required = false) Integer groupId,
+                       @RequestParam(required = false) Integer stat,
+                       @RequestParam(required = false) String ip
+    ) {
+        PageResult pageResult = redisIpService.listPagable(current, pageSize, groupId, ip, stat);
         return Result.success(pageResult);
     }
 
@@ -30,29 +36,20 @@ public class RedisIpController {
 
     @PostMapping(value = "save")
     public Result save(@RequestParam String ip, @RequestParam Integer groupid) {
-        RedisIp b = new RedisIp();
-        b.setIp(ip);
-        b.setGroupId(groupid);
-        int i = redisIpService.saveRedisIp(b);
+        int i = redisIpService.saveRedisIp(ip, groupid);
         return Result.success(i);
     }
 
     @PostMapping(value = "update")
     public Result update(@RequestParam Integer id, @RequestParam String ip,
                          @RequestParam Integer groupid) {
-        RedisIp b = new RedisIp();
-        b.setId(id);
-        b.setIp(ip);
-        b.setGroupId(groupid);
-        int i = redisIpService.updateRedisIp(b);
+        int i = redisIpService.updateRedisIp(id, ip, groupid);
         return Result.success(i);
     }
 
     @PostMapping(value = "delete")
     public Result delete(@RequestParam Integer id) {
-        RedisIp b = new RedisIp();
-        b.setId(id);
-        int i = redisIpService.deleteRedisIp(b);
+        int i = redisIpService.deleteRedisIp(id);
         return Result.success(i);
     }
 

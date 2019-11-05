@@ -6,6 +6,7 @@ import lombok.Setter;
 import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.persistence.Transient;
+import java.util.Date;
 
 @Getter
 @Setter
@@ -18,4 +19,7 @@ public class RedisIp {
     private String ip;
     private Integer master;
     private String intro;
+    private Integer stat;
+    private Date createTime;
+    private Date updateTime;
 }

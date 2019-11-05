@@ -1,6 +1,7 @@
 package rh.study.knowledge.dao.redis;
 
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 import rh.study.knowledge.entity.redis.RedisIp;
 import tk.mybatis.mapper.common.BaseMapper;
 
@@ -13,6 +14,12 @@ import java.util.Map;
 @Mapper
 public interface RedisIpMapper extends BaseMapper<RedisIp> {
 
-    public List<Map<String, Object>> list();
+    List<Map<String, Object>> list(@Param(value = "groupId") Integer groupId,
+                                          @Param(value = "ip")String ip,
+                                          @Param(value = "stat")Integer stat
+    );
 
+    Map<String, Object> queryByIp(@Param(value = "ip")String ip,
+                            @Param(value = "groupId") Integer groupid,
+                            @Param(value = "stat")Integer stat);
 }

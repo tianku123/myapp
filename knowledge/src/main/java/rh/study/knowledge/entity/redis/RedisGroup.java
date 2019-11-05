@@ -5,6 +5,7 @@ import lombok.Setter;
 
 import javax.persistence.Id;
 import javax.persistence.Table;
+import java.util.Date;
 
 @Getter
 @Setter
@@ -16,4 +17,7 @@ public class RedisGroup {
     private String name;
     private String intro;
     private Integer ord;
+    private Integer stat;
+    private Date createTime;
+    private Date updateTime;
 }

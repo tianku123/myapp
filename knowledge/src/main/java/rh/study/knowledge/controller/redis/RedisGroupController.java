@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import rh.study.knowledge.common.result.PageResult;
 import rh.study.knowledge.common.result.Result;
+import rh.study.knowledge.entity.common.StatParam;
 import rh.study.knowledge.entity.redis.RedisGroup;
 import rh.study.knowledge.service.redis.RedisGroupService;
 
@@ -30,26 +31,19 @@ public class RedisGroupController {
 
     @PostMapping(value = "save")
     public Result save(@RequestParam String name) {
-        RedisGroup b = new RedisGroup();
-        b.setName(name);
-        int i = redisGroupService.saveRedisGroup(b);
+        int i = redisGroupService.saveRedisGroup(name);
         return Result.success(i);
     }
 
     @PostMapping(value = "update")
     public Result update(@RequestParam Integer id, @RequestParam String name) {
-        RedisGroup b = new RedisGroup();
-        b.setId(id);
-        b.setName(name);
-        int i = redisGroupService.updateRedisGroup(b);
+        int i = redisGroupService.updateRedisGroup(id, name);
         return Result.success(i);
     }
 
     @PostMapping(value = "delete")
     public Result delete(@RequestParam Integer id) {
-        RedisGroup b = new RedisGroup();
-        b.setId(id);
-        int i = redisGroupService.deleteRedisGroup(b);
+        int i = redisGroupService.deleteRedisGroup(id);
         return Result.success(i);
     }
 

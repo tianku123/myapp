@@ -1,5 +1,6 @@
 import React, { PureComponent, Fragment } from 'react';
 import { connect } from 'dva';
+import moment from 'moment';
 import {
   Row,
   Col,
@@ -47,45 +48,83 @@ class RedisIpList extends PureComponent {
     {
       title: '分组',
       dataIndex: 'name',
+      sorter: true,
     },
     {
       title: 'Redis地址',
       dataIndex: 'ip',
     },
     {
+      title: '状态',
+      dataIndex: 'stat',
+      render: val => {
+        if (val == 0) {
+          return "正常";
+        } else if (val == 1) {
+          return <span style={{color: 'red'}}>删除</span>
+        }
+      },
+    },
+    {
       title: '说明',
       dataIndex: 'intro',
     },
-    // {
-    //   title: '时间',
-    //   dataIndex: 'fsaleTime',
-    //   sorter: true,
-    //   render: val => <span>{moment(val).format('YYYY-MM-DD HH:mm:ss')}</span>,
-    // },
+    {
+      title: '创建时间',
+      dataIndex: 'createTime',
+      // sorter: true,
+      render: val => {return val != null ? <span>{moment(val).format('YYYY-MM-DD HH:mm:ss')}</span> : ''},
+    },
+    {
+      title: '更新时间',
+      dataIndex: 'updateTime',
+      // sorter: true,
+    render: val => {return val != null ? <span>{moment(val).format('YYYY-MM-DD HH:mm:ss')}</span> : ''},
+    },
     {
       title: '操作',
-      render: (text, record) => (
-        <Fragment>
-          <Popconfirm
-            title="确定删除吗?"
-            onConfirm={() => this.handleDelete(record)}
-            // onCancel={cancel}
-            okText="Yes"
-            cancelText="No"
-          >
-            <a href="#">删除</a>
-          </Popconfirm>
-          <Divider type="vertical" />
-          <a onClick={() => this.handleModalVisible(true, false, record)}>编辑</a>
-        </Fragment>
-      ),
+      render: (text, record) => {
+        return record.stat == 1 ? null :
+          <Fragment>
+            <Popconfirm
+              title="确定删除吗?"
+              onConfirm={() => this.handleDelete(record)}
+              // onCancel={cancel}
+              okText="是"
+              cancelText="否"
+            >
+              <a href="#">删除</a>
+            </Popconfirm>
+            <Divider type="vertical" />
+            <a onClick={() => this.handleModalVisible(true, false, record)}>编辑</a>
+          </Fragment>
+      }
     },
   ];
 
   componentDidMount() {
     const { dispatch } = this.props;
+
     dispatch({
-      type: 'redisip/fetch',
+      type: 'redisip/redisGroup',
+      payload: {
+      },
+      callback: (res) => {
+        // if (res.status == 200 && res.data && res.data[0] && res.data[0].id) {
+          // dispatch({
+          //   type: 'redisip/redisIp',
+          //   payload: {
+          //     groupId: res.data[0].id
+          //   },
+          //   callback: (res) => {
+              
+              dispatch({
+                type: 'redisip/fetch',
+              });
+            // }
+          // });
+        // }
+      }
     });
   }
 
@@ -167,7 +206,6 @@ class RedisIpList extends PureComponent {
 
       const values = {
         ...fieldsValue,
-        updatedAt: fieldsValue.updatedAt && fieldsValue.updatedAt.valueOf(),
       };
 
       this.setState({
@@ -216,6 +254,7 @@ class RedisIpList extends PureComponent {
     }).then(data => {
       dispatch({
         type: 'redisip/fetch',
+        payload: this.state.formValues,
       });
     });
 
@@ -232,6 +271,7 @@ class RedisIpList extends PureComponent {
     }).then(data => {
       dispatch({
         type: 'redisip/fetch',
+        payload: this.state.formValues,
       });
     });
 
@@ -240,34 +280,60 @@ class RedisIpList extends PureComponent {
 
   renderSimpleForm() {
     const {
+      redisip: { redisGroupData, redisIpData },
       form: { getFieldDecorator },
     } = this.props;
+    let groupidVal = null;
+    let ipVal = null;
+    let groupOption = redisGroupData ? redisGroupData.map((o, i) => {
+      if (i == 0) {
+        groupidVal = o.id;
+      }
+      return <Option key={o.id} value={o.id}>{o.name}</Option>
+    }) : null;
+    let ipOption = redisIpData ? redisIpData.map((o, i) => {
+      if (i == 0) {
+        ipVal = o.id;
+      }
+      return <Option key={o.id} value={o.id}>{o.ip}</Option>
+    }) : null;
     return (
       <Form onSubmit={this.handleSearch} layout="inline">
         <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
-          <Col md={8} sm={24}>
-            <FormItem label="规则名称">
-              {getFieldDecorator('name')(<Input placeholder="请输入" />)}
+          <Col md={6} sm={18}>
+            <FormItem label="分组">
+            {getFieldDecorator('groupId', {
+            })(
+              <Select style={{ width: '100%' }} showSearch={true} allowClear={true}
+              >
+                {groupOption}
+              </Select>)}
             </FormItem>
           </Col>
-          <Col md={8} sm={24}>
-            <FormItem label="使用状态">
-              {getFieldDecorator('status')(
-                <Select placeholder="请选择" style={{ width: '100%' }}>
-                  <Option value="0">关闭</Option>
-                  <Option value="1">运行中</Option>
-                </Select>
-              )}
+          <Col md={8} sm={20}>
+            <FormItem label="Redis地址">
+              {getFieldDecorator('ip')(<Input placeholder="请输入IP" allowClear={true} />)}
             </FormItem>
           </Col>
-          <Col md={8} sm={24}>
+          <Col md={4} sm={12}>
+            <FormItem label="状态">
+            {getFieldDecorator('stat', {
+            })(
+              <Select style={{ width: '100%' }} showSearch={true} allowClear={true}
+              >
+                <Option key="0" value="0">正常</Option>
+                <Option key="1" value="1">删除</Option>
+              </Select>)}
+            </FormItem>
+          </Col>
+          <Col md={4} sm={12}>
             <span className={styles.submitButtons}>
               <Button type="primary" htmlType="submit">
                 查询
               </Button>
-              <Button style={{ marginLeft: 8 }} onClick={this.handleFormReset}>
+              {/* <Button style={{ marginLeft: 8 }} onClick={this.handleFormReset}>
                 重置
-              </Button>
+              </Button> */}
             </span>
           </Col>
         </Row>
@@ -301,7 +367,7 @@ class RedisIpList extends PureComponent {
     };
     
     return (
-      <PageHeaderWrapper title="查询表格">
+      <PageHeaderWrapper>
         <Card bordered={false}>
           <div className={styles.tableList}>
             <div className={styles.tableListForm}>{this.renderSimpleForm()}</div>

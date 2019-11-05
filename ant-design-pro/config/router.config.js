@@ -42,26 +42,26 @@ export default [
     authority: ['admin', 'user'],
     routes: [
       // dashboard
-      { path: '/', redirect: '/dashboard/monitor-list' },
+      { path: '/', redirect: '/dashboard/monitor' },
       {
         path: '/dashboard',
-        name: 'dashboard',
+        name: 'Redis',
         icon: 'dashboard',
         routes: [
           {
-            path: '/dashboard/redisgroup-list',
+            path: '/dashboard/monitor',
+            name: 'redismonitor',
+            component: './List/redis/MonitorList',
+          },
+          {
+            path: '/dashboard/redisgroup',
             name: 'redisgroup',
             component: './List/redis/RedisGroupList',
           },
           {
-            path: '/dashboard/redisip-list',
+            path: '/dashboard/redisip',
             name: 'redisip',
             component: './List/redis/RedisIpList',
-          },
-          {
-            path: '/dashboard/monitor-list',
-            name: 'redismonitor',
-            component: './List/redis/MonitorList',
           },
           // {
           //   path: '/dashboard/analysis',
