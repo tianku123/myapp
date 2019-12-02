@@ -15,7 +15,7 @@ import java.util.Map;
 @Mapper
 public interface MonitorMapper extends BaseMapper<Monitor> {
 
-    List<Map<String,Object>> list(Integer ipId);
+    List<Map<String,Object>> list(Map<String, Object> params);
 
     void batchInsert(@Param(value = "monitorList") List<Monitor> monitorList);
 }

@@ -48,7 +48,6 @@ class RedisIpList extends PureComponent {
     {
       title: '分组',
       dataIndex: 'name',
-      sorter: true,
     },
     {
       title: 'Redis地址',

@@ -15,6 +15,36 @@ import java.util.GregorianCalendar;
 public class DateUtil {
 
 
+    public static String yyyyMMddHHmmss = "yyyyMMdd HH:mm:ss";
+    public static String yyyyMMddHHmm = "yyyyMMdd HH:mm";
+    public static String yyyyMMddHH = "yyyyMMddHH";
+    public static String yyyyMMddHH_Zh = "yyyy年MM月dd日HH时";
+    public static String yyyyMMdd = "yyyyMMdd";
+    public static String yyyyMM = "yyyyMM";
+
+    public static String format(Object obj, String format) {
+        if (obj == null) return null;
+        try {
+            Date date = (Date)obj;
+            DateFormat dateFormat1 = new SimpleDateFormat(format);
+            return dateFormat1.format(date);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public static Date parseDate(String obj, String format) {
+        if (obj == null) return null;
+        try {
+            DateFormat dateFormat1 = new SimpleDateFormat(format);
+            return dateFormat1.parse(obj);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
     /**
      * 根据日期计算所属周第一天日期和最后一天日期
      */

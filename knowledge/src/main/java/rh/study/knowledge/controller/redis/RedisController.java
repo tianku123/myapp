@@ -18,6 +18,7 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping(value = "/api/redis/monitor")
@@ -68,4 +69,40 @@ public class RedisController {
         return Result.success(list);
     }
 
+    /**
+     * 获取当前 Redis监控分组横向列表
+     * @return
+     */
+    @GetMapping(value = "/listGroupPageable")
+    public Result listGroupPageable(@RequestParam(defaultValue = "1") int current,
+                       @RequestParam(defaultValue = "10") int pageSize,
+                       @RequestParam(required = false) String startDate,
+                       @RequestParam(required = false) String endDate
+                       ) {
+        PageResult list = redisService.listGroupPageable(current, pageSize, startDate, endDate);
+        return Result.success(list);
+    }
+
+
+    /**
+     * 获取当前 Redis监控文件
+     * @param request
+     * @param response
+     * @return
+     */
+    @GetMapping(value = "/getRedisExcel2")
+    public void getRedisExcel2(HttpServletRequest request,
+                              HttpServletResponse response) {
+        XSSFWorkbook workbook = null;
+        try {
+            String startDate = request.getParameter("startDate");
+            String endDate = request.getParameter("endDate");
+            SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+
+            workbook = redisService.getRedisExcel2(startDate, endDate);
+            ExcelExportUtil.outWrite(request, response, workbook, "Redis监控文件"+ format.format(new Date()) +".xlsx");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 }

@@ -3,6 +3,8 @@ package rh.study.knowledge.common.result;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.List;
+
 /**
  * 通用分页查询返回类型
  */
@@ -29,6 +31,10 @@ public class PageResult {
      * 当前页数据
      */
     private Object rows;
+    /**
+     * 前端Table标题列
+     */
+    private List<Column> columns;
 
     /**
      *
@@ -56,6 +62,24 @@ public class PageResult {
         this.rows = rows;
         this.current = current;
         this.pageSize = pageSize;
+    }
+
+    /**
+     *
+     * @param total    总记录数
+     * @param pages     总页数
+     * @param rows      数据
+     * @param current    当前页
+     * @param pageSize  每页页记录数
+     */
+    public PageResult(Long total, Integer pages, Object rows,
+                      Integer current, Integer pageSize, List<Column> columns) {
+        this.total = total;
+        this.pages = pages;
+        this.rows = rows;
+        this.current = current;
+        this.pageSize = pageSize;
+        this.columns = columns;
     }
 
 }

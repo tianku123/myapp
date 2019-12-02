@@ -5,7 +5,7 @@
 
     <select id="list" resultType="map">
         SELECT a.ip as ip ,
-        a.`master` as `master`, a.intro as intro, b.name as name,
+        a.`master` as `master`, a.group_id, b.name as group_name,
         monitor.id,
         monitor.ip_id,
         monitor.client_num,
@@ -15,7 +15,15 @@
         monitor.create_time
         from `monitor` as `monitor` LEFT JOIN redis_ip a ON monitor.ip_id=a.id
         LEFT JOIN redis_group b ON a.group_id = b.id
-        WHERE monitor.ip_id=#{ipId}
+        <where>
+            <if test="ipId !=null and ipId != ''">
+                AND monitor.ip_id=#{ipId}
+            </if>
+            <if test="startDate !=null and endDate !=null">
+                AND monitor.create_time &gt;= #{startDate} AND monitor.create_time &lt;= #{endDate}
+            </if>
+        </where>
+        ORDER BY monitor.id DESC
     </select>
     
     <insert id="batchInsert">

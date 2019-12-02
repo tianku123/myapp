@@ -6,20 +6,17 @@ import {
   Col,
   Card,
   Form,
-  Input,
   Select,
-  Icon,
+  Table,
   Button,
-  Dropdown,
-  Menu,
-  Popconfirm,
-  Divider,
+  DatePicker,
 } from 'antd';
 import StandardTable from '@/components/StandardTable';
 import PageHeaderWrapper from '@/components/PageHeaderWrapper';
 
 import styles from './RedisIpList.less';
 
+const { MonthPicker, RangePicker } = DatePicker;
 const FormItem = Form.Item;
 const { Option } = Select;
 const getValue = obj =>
@@ -29,12 +26,12 @@ const getValue = obj =>
 
 
 /* eslint react/no-multi-comp:0 */
-@connect(({ redismonitor, loading }) => ({
-  redismonitor,
-  loading: loading.models.redismonitor,
+@connect(({ redismonitor_group, loading }) => ({
+  redismonitor_group,
+  loading: loading.models.redismonitor_group,
 }))
 @Form.create()
-class MonitorList extends PureComponent {
+class MonitorGroupList extends PureComponent {
   state = {
     modalVisible: false,
     isSaveOrUpdate: true,
@@ -122,33 +119,37 @@ class MonitorList extends PureComponent {
   componentDidMount() {
     const { dispatch } = this.props;
     // dispatch({
-    //   type: 'redismonitor/fetch',
+    //   type: 'redismonitor_group/redisGroup',
+    //   payload: {
+    //   },
+    //   callback: (res) => {
+    //     if (res.status == 200 && res.data && res.data[0] && res.data[0].id) {
+    //       dispatch({
+    //         type: 'redismonitor_group/redisIp',
+    //         payload: {
+    //           groupId: res.data[0].id
+    //         },
+    //         callback: (res) => {
+    //           console.log('ip', res);
+    //           if (res.status == 200 && res.data && res.data[0] && res.data[0].id) {
+    //             dispatch({
+    //               type: 'redismonitor_group/fetch',
+    //               payload: {
+    //                 ipId: res.data[0].id
+    //               },
+    //             });
+    //           }
+    //         }
+    //       });
+    //     }
+    //   }
     // });
+    
     dispatch({
-      type: 'redismonitor/redisGroup',
+      type: 'redismonitor_group/fetch',
       payload: {
+        // ipId: res.data[0].id
       },
-      callback: (res) => {
-        if (res.status == 200 && res.data && res.data[0] && res.data[0].id) {
-          dispatch({
-            type: 'redismonitor/redisIp',
-            payload: {
-              groupId: res.data[0].id
-            },
-            callback: (res) => {
-              console.log('ip', res);
-              if (res.status == 200 && res.data && res.data[0] && res.data[0].id) {
-                dispatch({
-                  type: 'redismonitor/fetch',
-                  payload: {
-                    ipId: res.data[0].id
-                  },
-                });
-              }
-            }
-          });
-        }
-      }
     });
   }
 
@@ -173,7 +174,7 @@ class MonitorList extends PureComponent {
     }
 
     dispatch({
-      type: 'redismonitor/fetch',
+      type: 'redismonitor_group/fetch',
       payload: params,
     });
   };
@@ -185,7 +186,7 @@ class MonitorList extends PureComponent {
       formValues: {},
     });
     dispatch({
-      type: 'redismonitor/fetch',
+      type: 'redismonitor_group/fetch',
       payload: {},
     });
   };
@@ -198,7 +199,7 @@ class MonitorList extends PureComponent {
     switch (e.key) {
       case 'remove':
         dispatch({
-          type: 'redismonitor/remove',
+          type: 'redismonitor_group/remove',
           payload: {
             key: selectedRows.map(row => row.key),
           },
@@ -227,18 +228,19 @@ class MonitorList extends PureComponent {
 
     form.validateFields((err, fieldsValue) => {
       if (err) return;
-
+      const rangeValue = fieldsValue['range-picker'];
       const values = {
-        ...fieldsValue,
-        updatedAt: fieldsValue.updatedAt && fieldsValue.updatedAt.valueOf(),
+        // ...fieldsValue,
+        startDate: rangeValue[0].format('YYYY-MM-DD'),
+        endDate: rangeValue[1].format('YYYY-MM-DD'),
+        // updatedAt: fieldsValue.updatedAt && fieldsValue.updatedAt.valueOf(),
       };
-
       this.setState({
         formValues: values,
       });
 
       dispatch({
-        type: 'redismonitor/fetch',
+        type: 'redismonitor_group/fetch',
         payload: values,
       });
     });
@@ -247,13 +249,13 @@ class MonitorList extends PureComponent {
   handleModalVisible = (flag, isSaveOrUpdate, fields) => {
     const { dispatch } = this.props;
     dispatch({
-      type: 'redismonitor/redisGroup',
+      type: 'redismonitor_group/redisGroup',
       payload: {
       },
     });
     if (!isSaveOrUpdate && !!fields) {// 编辑
       dispatch({
-        type: 'redismonitor/fetchById',
+        type: 'redismonitor_group/fetchById',
         payload: {
           id: fields.id,
         },
@@ -270,7 +272,7 @@ class MonitorList extends PureComponent {
   handleAdd = (fields) => {
     const { dispatch } = this.props;
     dispatch({
-      type: this.state.isSaveOrUpdate ? 'redismonitor/add' : 'redismonitor/update',
+      type: this.state.isSaveOrUpdate ? 'redismonitor_group/add' : 'redismonitor_group/update',
       payload: {
         id: this.state.id,
         ip: fields.ip,
@@ -278,7 +280,7 @@ class MonitorList extends PureComponent {
       },
     }).then(data => {
       dispatch({
-        type: 'redismonitor/fetch',
+        type: 'redismonitor_group/fetch',
       });
     });
 
@@ -288,13 +290,13 @@ class MonitorList extends PureComponent {
   handleDelete = fields => {
     const { dispatch } = this.props;
     dispatch({
-      type: 'redismonitor/remove',
+      type: 'redismonitor_group/remove',
       payload: {
         id: fields.id,
       },
     }).then(data => {
       dispatch({
-        type: 'redismonitor/fetch',
+        type: 'redismonitor_group/fetch',
       });
     });
 
@@ -303,7 +305,7 @@ class MonitorList extends PureComponent {
 
   onChangeGroup = (groupId) => {
     this.props.dispatch({
-      type: 'redismonitor/redisIp',
+      type: 'redismonitor_group/redisIp',
       payload: {
         groupId
       },
@@ -311,7 +313,7 @@ class MonitorList extends PureComponent {
         // console.log('ip', res);
         // if (res.status == 200 && res.data && res.data[0] && res.data[0].id) {
         //   dispatch({
-        //     type: 'redismonitor/fetch',
+        //     type: 'redismonitor_group/fetch',
         //     payload: {
         //       ipId: res.data[0].id
         //     },
@@ -323,7 +325,7 @@ class MonitorList extends PureComponent {
 
   renderSimpleForm() {
     const {
-      redismonitor: { redisGroupData, redisIpData },
+      redismonitor_group: { redisGroupData, redisIpData },
       form: { getFieldDecorator },
     } = this.props;
     let groupidVal = null;
@@ -340,26 +342,15 @@ class MonitorList extends PureComponent {
       }
       return <Option key={o.id} value={o.id}>{o.ip}</Option>
     }) : null;
+    const rangeConfig = {
+      rules: [{ type: 'array', required: true, message: 'Please select time!' }],
+    };
     return (
       <Form onSubmit={this.handleSearch} layout="inline">
         <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
           <Col md={8} sm={24}>
-            <FormItem label="分组">
-            {getFieldDecorator('groupid', { initialValue: groupidVal,
-            })(
-              <Select style={{ width: '100%' }} showSearch={true}
-                onChange={this.onChangeGroup}
-              >
-                {groupOption}
-              </Select>)}
-            </FormItem>
-          </Col>
-          <Col md={8} sm={24}>
-          <FormItem label="Redis地址">
-            {getFieldDecorator('ipId', { initialValue: ipVal,
-            })(<Select style={{ width: '100%' }}>
-            {ipOption}
-            </Select>)}
+            <FormItem label="时间">
+              {getFieldDecorator('range-picker', rangeConfig)(<RangePicker />)}
             </FormItem>
           </Col>
           <Col md={8} sm={24}>
@@ -377,44 +368,35 @@ class MonitorList extends PureComponent {
     );
   }
 
-  exportRedisMonitor = () => {
+  exportredismonitor_group = () => {
     // this.props.dispatch({
-    //   type: 'redismonitor/exportRedisMonitor',
+    //   type: 'redismonitor_group/exportredismonitor_group',
     // });
-    location.href='/api/redis/monitor/getRedisExcel';
+    let startDate = this.state.formValues.startDate ? this.state.formValues.startDate : '';
+    let endDate = this.state.formValues.endDate ? this.state.formValues.endDate : '';
+    location.href='/api/redis/monitor/getRedisExcel2?startDate='+startDate
+    + "&endDate="+endDate;
   }
 
   render() {
     const {
-      redismonitor: { data },
+      redismonitor_group: { data },
       loading,
     } = this.props;
-    const { selectedRows, modalVisible, isSaveOrUpdate, id } = this.state;
-    const menu = (
-      <Menu onClick={this.handleMenuClick} selectedKeys={[]}>
-        <Menu.Item key="remove">删除</Menu.Item>
-        <Menu.Item key="approval">批量审批</Menu.Item>
-      </Menu>
-    );
-
-    const parentMethods = {
-      handleAdd: this.handleAdd,
-      handleModalVisible: this.handleModalVisible,
+    const other = {
+      scroll: { x: 850, y: 300 }
     };
-    
+    let x = data.columns.length * 125 + 335;
     return (
       <PageHeaderWrapper>
         <Card bordered={false}>
           <div className={styles.tableList}>
             <div className={styles.tableListForm}>{this.renderSimpleForm()}</div>
             <div className={styles.tableListOperator}>
-              {/* <Button icon="plus" type="primary" onClick={() => this.handleModalVisible(true, true)}>
-                新建
-              </Button>
-              <Button icon="plus" type="primary" onClick={() => this.exportRedisMonitor()}>
+              <Button icon="plus" type="primary" onClick={() => this.exportredismonitor_group()}>
                 下载当前Redis监控数据
-              </Button> */}
-              {selectedRows.length > 0 && (
+              </Button>
+              {/* {selectedRows.length > 0 && (
                 <span>
                   <Button>批量操作</Button>
                   <Dropdown overlay={menu}>
@@ -423,17 +405,11 @@ class MonitorList extends PureComponent {
                     </Button>
                   </Dropdown>
                 </span>
-              )}
+              )} */}
             </div>
-            <StandardTable
-              selectedRows={selectedRows}
-              loading={loading}
-              data={data}
-              rowKey={record => record.id}
-              columns={this.columns}
-              onSelectRow={this.handleSelectRows}
-              onChange={this.handleStandardTableChange}
-            />
+            <Table
+              rowKey="ip_id"
+              columns={data.columns} dataSource={data.list} scroll={{ x: x, y: 300 }} />
           </div>
         </Card>
       </PageHeaderWrapper>
@@ -441,4 +417,4 @@ class MonitorList extends PureComponent {
   }
 }
 
-export default MonitorList;
+export default MonitorGroupList;

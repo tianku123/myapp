@@ -13,28 +13,23 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.util.EntityUtils;
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.xssf.usermodel.XSSFCell;
 import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
+import rh.study.knowledge.common.result.Column;
 import rh.study.knowledge.common.result.PageResult;
 import rh.study.knowledge.dao.redis.MonitorMapper;
 import rh.study.knowledge.dao.redis.RedisGroupMapper;
 import rh.study.knowledge.dao.redis.RedisIpMapper;
 import rh.study.knowledge.entity.redis.Monitor;
-import rh.study.knowledge.entity.redis.RedisGroup;
-import rh.study.knowledge.entity.redis.RedisIp;
-import rh.study.knowledge.util.JarUtil;
+import rh.study.knowledge.util.DataUtil;
+import rh.study.knowledge.util.DateUtil;
 
-import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.text.DecimalFormat;
 import java.util.*;
 
@@ -196,11 +191,11 @@ public class RedisService {
             orderList.add(map);
         }
 
-        XSSFWorkbook workbook1 = exportE(orderList, Arrays.asList("分组", "IP", "连接客户端","每分钟命令数","keys数量","已用内存"));
+        XSSFWorkbook workbook1 = exportE(orderList, Arrays.asList("分组", "IP", "连接客户端","每分钟命令数","keys数量","已用内存"), null);
         return workbook1;
     }
 
-    private XSSFWorkbook exportE(List<Map<String, Object>> orderList, List<String> keyList) {
+    private XSSFWorkbook exportE(List<Map<String, Object>> orderList, List<String> keyList, List<String> titleList) {
         XSSFWorkbook workbook = new XSSFWorkbook();
         XSSFSheet sheet = workbook.createSheet("Redis分组监控数据");
         XSSFRow row;
@@ -208,9 +203,13 @@ public class RedisService {
         int rowNum = 0;
         row = sheet.createRow(rowNum++);
         int i = 0;
+        int j = 0;
         for (String str : keyList) {
             cell = row.createCell(i++);
             cell.setCellValue(str);
+            if (titleList != null) {
+                cell.setCellValue(titleList.get(j++));
+            }
         }
         for (Map<String, Object> map : orderList) {
             row = sheet.createRow(rowNum++);
@@ -289,11 +288,148 @@ public class RedisService {
         return i;
     }
 
+    /**
+     * 纵向
+     * @param current
+     * @param pageSize
+     * @param ipId
+     * @return
+     */
     public PageResult listPageable(int current, int pageSize, Integer ipId) {//分页查询，包括分页和总数查询，第三个参数是控制是否计算总数，默认是true,true为查询总数，分页效果只对其后的第一个查询有效。
         Page page = PageHelper.startPage(current, pageSize);
 //        List<RedisIp> list = redisIpMapper.selectAll();
-        List<Map<String, Object>> list = monitorMapper.list(ipId);
+        Map<String, Object> params = new HashMap<>();
+        params.put("ipId", ipId);
+        List<Map<String, Object>> list = monitorMapper.list(params);
         return new PageResult(page.getTotal(), page.getPages(), list, page.getPageNum(), page.getPageSize());
 
+    }
+
+    /**
+     * 横向
+     * @param current
+     * @param pageSize
+     * @param startDate
+     * @param endDate
+     * @return
+     */
+    public PageResult listGroupPageable(int current, int pageSize, String startDate, String endDate) {
+        if (StringUtils.isEmpty(startDate)) {
+            Date now = new Date();
+            startDate = DateUtil.format(now, DateUtil.yyyyMM) + "01";
+            endDate = DateUtil.format(now, DateUtil.yyyyMMdd);
+        }
+
+        Map<String, Object> params = new HashMap<>();
+        params.put("startDate", !StringUtils.isEmpty(startDate) ? DateUtil.parseDate(startDate.replaceAll("-", "") + " 00:00:00", DateUtil.yyyyMMddHHmmss) : null);
+        params.put("endDate", !StringUtils.isEmpty(endDate) ? DateUtil.parseDate(endDate.replaceAll("-", "") + " 23:59:59", DateUtil.yyyyMMddHHmmss) : null);
+        List<Map<String, Object>> list = monitorMapper.list(params);
+        Map<String, Map<String, Map<String, Object>>> ipGroupMap = new LinkedHashMap<>();
+        Map<String, Map<String, Object>> timeMap;
+        String ip;
+        String group_name;
+        String create_time;
+        Integer ip_id;
+        Integer group_id;
+        StringBuilder key;
+        Set<String> time = new TreeSet<>();
+        for (Map<String, Object> map : list) {
+            ip_id = MapUtils.getInteger(map, "ip_id");
+            group_id = MapUtils.getInteger(map, "group_id");
+            create_time = DateUtil.format(map.get("create_time"), DateUtil.yyyyMMddHH_Zh);
+            time.add(create_time);
+            key = new StringBuilder();
+            key.append(ip_id).append(group_id);
+            if (ipGroupMap.containsKey(key.toString())) {
+                timeMap = ipGroupMap.get(key.toString());
+            } else {
+                timeMap = new HashMap<>();
+            }
+            timeMap.put(create_time, map);
+            ipGroupMap.put(key.toString(), timeMap);
+        }
+        // keys
+        List<String> keysList = Arrays.asList("client_num", "commands", "memory_used", "redis_keys");
+        List<String> titleList = Arrays.asList("连接客户端数", "每分钟命令数", "已用内存", "keys数量");
+        List<String> commonKeyList = Arrays.asList("group_id", "group_name", "ip_id"
+                , "ip");
+        List<Column> columns = new ArrayList<>();
+        Column column = new Column();
+        column.setTitle("分组");
+        column.setDataIndex("group_name");
+        column.setFixed("left");
+        column.setWidth(230);
+        columns.add(column);
+        column = new Column();
+        column.setTitle("IP");
+        column.setDataIndex("ip");
+        column.setFixed("left");
+        column.setWidth(125);
+        columns.add(column);
+        int i = 0;
+        for (String k : keysList) {
+            String title = titleList.get(i++);
+            for (String t : time) {
+                column = new Column();
+                column.setDataIndex(k + t);
+                column.setTitle(title + t);
+                column.setWidth(120);
+                columns.add(column);
+            }
+        }
+        List<Map<String, Object>> resList = new ArrayList<>();
+        Map<String, Object> resMap;
+        Map<String, Object> map;
+        for (String s : ipGroupMap.keySet()) {
+            timeMap = ipGroupMap.get(s);
+            resMap = new HashMap<>();
+            for (String k : timeMap.keySet()) {
+                map = timeMap.get(k);
+                for (String f : keysList) {
+                    if ("memory_used".equals(f)) {
+                        StringBuilder sb = new StringBuilder();
+                        Double nc = MapUtils.getDouble(map, f, 0d);
+                        if (nc / 1024 / 1024 >= 1024 ) {
+                            nc = nc / 1024 / 1024 / 1024;
+                            sb.append(DataUtil.decimalFormat.format(nc)).append(" GB");
+                        } else {
+                            nc = nc / 1024 / 1024;
+                            sb.append(DataUtil.decimalFormat.format(nc)).append(" MB");
+                        }
+                        resMap.put(f+k, sb.toString());
+                    } else if ("commands".equals(f)) {
+                        Double num = MapUtils.getDouble(map, f, 0d);
+                        StringBuilder sb = new StringBuilder();
+                        if (num >=1000) {
+                            num /= 1000;
+                            sb.append(DataUtil.decimalFormat.format(num)).append(" k");
+                        } else {
+                            sb.append(num.intValue());
+                        }
+                        resMap.put(f+k, sb.toString());
+                    } else {
+                        resMap.put(f + k, map.get(f));
+                    }
+                }
+                for (String f : commonKeyList) {
+                    resMap.put(f, map.get(f));
+                }
+            }
+            resList.add(resMap);
+        }
+        return new PageResult((long) resList.size(), 1, resList, 1, resList.size(), columns);
+    }
+
+    public XSSFWorkbook getRedisExcel2(String startDate, String endDate) {
+        PageResult pageResult = listGroupPageable(0,0, startDate, endDate);
+        List<Column> list = pageResult.getColumns();
+        List<String> keyList = new ArrayList<>();
+        List<String> titleList = new ArrayList<>();
+        for (Column c : list) {
+            keyList.add(c.getDataIndex());
+            titleList.add(c.getTitle());
+        }
+        XSSFWorkbook workbook1 = exportE((List<Map<String, Object>>) pageResult.getRows(), keyList, titleList);
+        return workbook1;
     }
 }

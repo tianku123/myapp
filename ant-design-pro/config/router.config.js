@@ -49,6 +49,11 @@ export default [
         icon: 'dashboard',
         routes: [
           {
+            path: '/dashboard/monitorgroup',
+            name: 'redismonitorgroup',
+            component: './List/redis/MonitorGroupList',
+          },
+          {
             path: '/dashboard/monitor',
             name: 'redismonitor',
             component: './List/redis/MonitorList',
