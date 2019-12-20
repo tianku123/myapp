@@ -9,7 +9,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 import rh.study.knowledge.common.result.PageResult;
-import rh.study.knowledge.common.result.ResultEnum;
 import rh.study.knowledge.common.result.ServiceException;
 import rh.study.knowledge.dao.redis.RedisIpMapper;
 import rh.study.knowledge.entity.common.StatParam;
@@ -86,7 +85,7 @@ public class RedisIpService {
         }
 
         // 其他组有此IP则不能变更分组
-        Map<String, Object> map = redisIpMapper.queryByIp(ip, groupid, StatParam.SAVE);
+        Map<String, Object> map = redisIpMapper.queryByIp(ip, old.getGroupId(), StatParam.SAVE);
         if (map != null && map.containsKey("CNT") && MapUtils.getInteger(map, "CNT") > 0) {
             throw new ServiceException(500, "此IP地址已有分组！");
         }
