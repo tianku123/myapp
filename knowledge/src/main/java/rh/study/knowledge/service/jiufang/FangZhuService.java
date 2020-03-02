@@ -69,7 +69,23 @@ public class FangZhuService {
 
     public Result update(FangZhu fangZhu) {
         try {
-            int i = fangZhuMapper.updateByPrimaryKeySelective(fangZhu);
+            // 根据手机号码获取坊主信息
+            FangZhu fz = new FangZhu();
+            fz.setPhone(fangZhu.getPhone());
+            fz = fangZhuMapper.selectOne(fz);
+            if (fz == null) {
+                return Result.failure(500, "坊主不存在");
+            }
+            fangZhu.setOpenid(fangZhu.getOpenid());
+            fangZhu.setNickName(fangZhu.getNickName());
+            fangZhu.setAvatarUrl(fangZhu.getAvatarUrl());
+            fangZhu.setGender(fangZhu.getGender());
+            fangZhu.setProvince(fangZhu.getProvince());
+            fangZhu.setCity(fangZhu.getCity());
+            fangZhu.setUpdateTime(new Date());
+            // 状态：0删除，1创建状态，2微信认证过
+            fangZhu.setStat(2);
+            int i = fangZhuMapper.updateByPrimaryKeySelective(fz);
             if (i > 0) {
                 return Result.success(i);
             } else {

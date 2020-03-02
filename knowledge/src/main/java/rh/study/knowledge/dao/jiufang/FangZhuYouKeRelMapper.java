@@ -8,7 +8,7 @@ import tk.mybatis.mapper.common.BaseMapper;
 /**
  * Created by admin on 2018/11/2.
  */
-@Repository("fangZhuYouKeRelMapper")
+//@Repository("fangZhuYouKeRelMapper")
 @Mapper
 public interface FangZhuYouKeRelMapper extends BaseMapper<FangZhuYouKeRel> {
 

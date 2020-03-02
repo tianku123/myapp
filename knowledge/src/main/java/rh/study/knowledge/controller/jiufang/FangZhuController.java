@@ -5,7 +5,9 @@ import org.springframework.web.bind.annotation.*;
 import rh.study.knowledge.common.result.PageResult;
 import rh.study.knowledge.common.result.Result;
 import rh.study.knowledge.entity.jiufang.FangZhu;
+import rh.study.knowledge.entity.wechat.WeixinPhoneDecryptInfo;
 import rh.study.knowledge.service.jiufang.FangZhuService;
+import rh.study.knowledge.util.aes.AESForWeixinGetPhoneNumber;
 
 import java.util.Date;
 import java.util.HashMap;
@@ -61,30 +63,39 @@ public class FangZhuController {
     }
 
     @PostMapping(value = "auth")
-    public Result update(@RequestParam Integer id, //坊主id
+    public Result update(@RequestParam String sessionKey,
+                         @RequestParam String iv,
+                         @RequestParam String encryptedData,
                          @RequestParam String openid,// 用户微信唯一标识
                          // 微信昵称
-                         @RequestParam String nickName,
+                         @RequestParam(required = false) String nickName,
                          // 微信头像
-                         @RequestParam String avatarUrl,
+                         @RequestParam(required = false) String avatarUrl,
                          // 性别
-                         @RequestParam String gender,
+                         @RequestParam(required = false) String gender,
                          // 省份
-                         @RequestParam String province,
+                         @RequestParam(required = false) String province,
                          // 城市
-                         @RequestParam String city
+                         @RequestParam(required = false) String city
     ) {
+        AESForWeixinGetPhoneNumber aes=new AESForWeixinGetPhoneNumber(encryptedData,sessionKey,iv);
+        WeixinPhoneDecryptInfo info=aes.decrypt();
+        if (null==info){
+            return Result.failure(500, "获取手机号码失败");
+        }else {
+            if (!info.getWeixinWaterMark().getAppid().equals(CommonController.appid)){
+                return Result.failure(500, "获取手机号码失败,appid不匹配");
+            }
+        }
+        String phone = info.getPhoneNumber();
         FangZhu fangZhu = new FangZhu();
-        fangZhu.setId(id);
+        fangZhu.setPhone(phone);
         fangZhu.setOpenid(openid);
         fangZhu.setNickName(nickName);
         fangZhu.setAvatarUrl(avatarUrl);
         fangZhu.setGender(gender);
         fangZhu.setProvince(province);
         fangZhu.setCity(city);
-        fangZhu.setUpdateTime(new Date());
-        // 状态：0删除，1创建状态，2微信认证过
-        fangZhu.setStat(2);
         return fangZhuService.update(fangZhu);
     }
 

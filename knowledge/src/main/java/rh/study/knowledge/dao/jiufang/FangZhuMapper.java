@@ -13,7 +13,7 @@ import java.util.Map;
 /**
  * Created by admin on 2018/11/2.
  */
-@Repository("fangZhuMapper")
+//@Repository("fangZhuMapper")
 @Mapper
 public interface FangZhuMapper extends BaseMapper<FangZhu> {
 

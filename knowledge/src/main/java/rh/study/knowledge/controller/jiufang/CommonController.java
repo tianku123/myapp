@@ -13,14 +13,21 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import rh.study.knowledge.common.result.Result;
+import rh.study.knowledge.util.aes.AESForWeixinGetPhoneNumber;
+import rh.study.knowledge.entity.wechat.WeixinPhoneDecryptInfo;
 
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
+
 @RestController
 @RequestMapping(value = "/api/wechat/common")
 public class CommonController {
+
+    public static final String appid = "wx042d9b5b159808fe";
+
+    public static final String secret = "91135584368c0ce12474f76643279762";
 
     @GetMapping(value = "openid")
     public Result openid(@RequestParam String code) {
@@ -30,12 +37,33 @@ public class CommonController {
         return getOpenid(code);
     }
 
+    @GetMapping(value = "/getPhoneNumber")
+    public Result getPhoneNumber(
+            @RequestParam String sessionKey,
+            @RequestParam String iv,
+            @RequestParam String encryptedData) {
+        try {
+            AESForWeixinGetPhoneNumber aes=new AESForWeixinGetPhoneNumber(encryptedData,sessionKey,iv);
+            WeixinPhoneDecryptInfo info=aes.decrypt();
+            if (null==info){
+                return Result.failure(500, "获取失败");
+            }else {
+                if (!info.getWeixinWaterMark().getAppid().equals(appid)){
+                    return Result.failure(500, "appid error");
+                }
+            }
+            return Result.success(info);
+        } catch (Exception e) {
+            return Result.failure(500, "fail");
+        }
+    }
+
+
+
     private Result getOpenid(String code) {
         // GET https://api.weixin.qq.com/sns/jscode2session?appid=APPID&secret=SECRET&js_code=JSCODE&grant_type=authorization_code
         StringBuilder url = new StringBuilder("https://api.weixin.qq.com/sns/jscode2session?appid=");
-        final String appid = "wx042d9b5b159808fe";
         url.append(appid);
-        final String secret = "91135584368c0ce12474f76643279762";
         url.append("&secret=").append(secret)
                 .append("&js_code=").append(code)
                 .append("&grant_type=authorization_code");
@@ -79,6 +107,7 @@ public class CommonController {
             JSONObject jsonObject = JSONObject.parseObject(str);
             if (jsonObject.containsKey("openid")) {
                 map.put("openid", jsonObject.getString("openid"));
+                map.put("session_key", jsonObject.getString("session_key"));
                 return map;
             }
             if (jsonObject.containsKey("errcode")) {
