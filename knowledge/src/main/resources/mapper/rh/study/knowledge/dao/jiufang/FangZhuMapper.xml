@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="rh.study.knowledge.dao.jiufang.FangZhuMapper">
+
+    <select id="queryByPhone" resultType="map">
+        SELECT * FROM fangzhu WHERE phone=#{phone} AND stat != 0
+    </select>
+
+
+    <select id="list" resultType="map">
+        SELECT
+            id,
+            openid,
+            name,
+            nick_name as nickName,
+            avatar_url as avatarUrl,
+            province,
+            city,
+            phone,
+            create_time as createTime,
+            update_time as updateTime,
+            num,
+            fc_num as fcNum,
+            yk_num as ykNum,
+            stat
+        FROM fangzhu
+        <where>
+            <if test="stat != null and stat !=''" >
+                AND stat = #{stat}
+            </if>
+            <if test="stat == null or stat ==''" >
+                AND stat != 0
+            </if>
+            <if test="name != null and name !=''" >
+                AND name LIKE concat('',#{name},'%')
+            </if>
+            <if test="phone != null and phone !=''" >
+                AND phone LIKE concat('',#{phone},'%')
+            </if>
+        </where>
+        order by id DESC
+    </select>
+</mapper>
