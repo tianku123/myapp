@@ -2,7 +2,7 @@ spring:
   datasource:
     url: jdbc:mysql://localhost:3306/knowledge?useUnicode=true&characterEncoding=UTF-8&zeroDateTimeBehavior=convertToNull&allowMultiQueries=true&useSSL=false
     username: root
-    password: root #3862441ll
+    password: 3862441ll
 mybatis:
   mapper-locations: classpath:mapper/rh/study/knowledge/dao/**/*.xml
   type-aliases-package: rh.study.knowledge.entity

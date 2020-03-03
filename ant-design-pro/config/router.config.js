@@ -1,28 +1,4 @@
 export default [
-  // blog
-  {
-    path: '/blog',
-    // component: '../layouts/blog/BlogLayout',
-    component: '../layouts/blog/Center/BlogLayout',
-    routes: [
-      {
-        path: '/blog',
-        redirect: '/blog/articles',
-      },
-      {
-        path: '/blog/articles',
-        component: '../layouts/blog/Center/Articles',
-      },
-      {
-        path: '/blog/applications',
-        component: '../layouts/blog/Center/Applications',
-      },
-      {
-        path: '/blog/projects',
-        component: '../layouts/blog/Center/Projects',
-      },
-    ],
-  },
   // user
   {
     path: '/user',
@@ -56,13 +32,13 @@ export default [
           {
             path: '/dashboard/jprank',
             name: 'jprank',
-            component: './List/fangzhu/FangZhuList',
+            component: './List/rank/JpRankList',
           },
-          {
-            path: '/dashboard/ykrank',
-            name: 'ykrank',
-            component: './List/fangzhu/FangZhuList',
-          },
+          // {
+          //   path: '/dashboard/ykrank',
+          //   name: 'ykrank',
+          //   component: './List/fangzhu/FangZhuList',
+          // },
         ],
       },
       {
@@ -73,7 +49,7 @@ export default [
           {
             path: '/youke/youke',
             name: 'youke',
-            component: './List/fangzhu/FangZhuList',
+            component: './List/youke/YoukeList',
           },
         ],
       },

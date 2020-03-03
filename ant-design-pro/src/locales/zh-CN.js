@@ -74,8 +74,6 @@ export default {
   'menu.dashboard': 'Dashboard',
   'menu.dashboard.analysis': '分析页',
   'menu.dashboard.test': '测试页',
-  'menu.dashboard.editorDetail': 'MarkDown自定义样式展示',
-  'menu.dashboard.editorMdDetail': 'EditorMd样式展示',
   'menu.dashboard.monitor': '监控页',
   'menu.dashboard.workplace': '工作台',
   'menu.form': '表单页',

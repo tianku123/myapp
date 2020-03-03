@@ -20,4 +20,7 @@ public interface FangZhuMapper extends BaseMapper<FangZhu> {
     Map<String, Object> queryByPhone(@Param(value = "phone") String phone);
 
     List<Map<String,Object>> list(Map<String, Object> params);
+
+    // 根据openid 获取已认证的坊主
+    Map<String, Object> queryByOpenid(String openid);
 }

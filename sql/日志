@@ -1,0 +1,27 @@
+程序游戏设计逻辑：
+1、系统初始化，将经销商设置为“初始坊主”，后台分配拥有酒票的数量，每个初始坊主默认创建一个“酒坊”（类似于房间）。
+2、每个初始坊主，可以邀请好友（消费者客户）进入自己的酒坊，参与游戏，挑战坊主摇骰子。赢家获得一张酒票，输家不失去酒票。
+3、每个被邀请参与者初始状态无酒票。所有无酒票参与者只能挑战坊主，已赢得酒票的参与者可挑战排行榜中其他参与者，每个参与者每日可以玩5次游戏。当日游戏次数满足5次，每分享一次活动链接可以获得5次游戏机会，并且获得一张1酒票。（注：控制挑战坊主赢取概率，用户间挑战胜率随机。）
+4、一个房间的人可以相互挑战，并且设置排行榜（根据拥有酒票数量排名）。
+5、活动截止日期，锁定数据，每个房间的排行榜前三名可以获得额外奖励。
+6、活动截止日期，游戏参与者可以根据拥有酒票数量兑换实物奖励。
+
+
+GET https://api.weixin.qq.com/sns/jscode2session?appid=APPID&secret=SECRET&js_code=JSCODE&grant_type=authorization_code
+
+https://api.weixin.qq.com/sns/jscode2session?appid=wx042d9b5b159808fe&secret=91135584368c0ce12474f76643279762&js_code=07113O762DTfOO07Xj862yBQ76213O7x&grant_type=authorization_code
+
+
+http://localhost:8080//api/wechat/common/openid?code=0212dn6y1c2buc0Nwd7y1mrE6y12dn6k
+
+
+ryan/wsdsl19930519!@#
+IP：101.132.126.120
+
+ 账号 root/3862441ll
+ 
+ mysql: /home/ryan/app/mysql
+nginx:/home/ryan/app/openresty/nginx
+
+
+

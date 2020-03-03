@@ -2,4 +2,42 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="rh.study.knowledge.dao.jiufang.YouKeMapper">
 
+
+    <select id="list" resultType="map">
+        SELECT
+        id,
+        openid,
+        nick_name as nickName,
+        avatar_url as avatarUrl,
+        province,
+        city,
+        phone,
+        create_time as createTime,
+        update_time as updateTime
+        FROM youke
+        <where>
+            <if test="nickName != null and nickName !=''" >
+                AND nick_name LIKE concat('',#{nickName},'%')
+            </if>
+        </where>
+        order by id DESC
+    </select>
+
+    <select id="jpRankPagable" resultType="map">
+        SELECT
+        a.id,
+        a.openid,
+        a.nick_name as nickName,
+        a.avatar_url as avatarUrl,
+        a.province,
+        a.city,
+        b.jp_num
+        FROM youke as a LEFT JOIN fz_yk_rel as b ON a.id = b.yk_id
+        <where>
+            <if test="nickName != null and nickName !=''" >
+                AND b.fz_openid = #{fzOpenid}
+            </if>
+        </where>
+        order by b.jp_num DESC
+    </select>
 </mapper>

@@ -95,4 +95,13 @@ public class FangZhuService {
             return Result.failure(500, "修改失败");
         }
     }
+
+    /**
+     * 根据openid 获取已认证的坊主
+     * @param openid
+     * @return
+     */
+    public Map<String, Object> queryByOpenid(String openid) {
+        return fangZhuMapper.queryByOpenid(openid);
+    }
 }

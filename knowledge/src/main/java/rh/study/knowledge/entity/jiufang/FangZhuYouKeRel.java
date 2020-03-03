@@ -22,8 +22,10 @@ public class FangZhuYouKeRel {
     private Integer id;
     // 游客id
     private Integer ykId;
+    private String ykOpenid;
     // 坊主id
     private Integer fzId;
+    private String fzOpenid;
     // 游客赢得的酒票数
     private Integer jpNum;
     // 游客分享次数，分享后其他游客点击开始游戏后才会算数

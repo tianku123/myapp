@@ -15,22 +15,6 @@ class Exception extends React.PureComponent {
     this.state = {};
   }
 
-  componentDidMount () {
-    $(function() {
-      var editor = editormd("editormd", {
-        path : "/editor.md/lib/" // Autoload modules mode, codemirror, marked... dependents libs path
-      });
-
-      /*
-      // or
-      var editor = editormd({
-          id   : "editormd",
-          path : "../lib/"
-      });
-      */
-    });
-
-  }
 
   render() {
     const {
@@ -49,9 +33,7 @@ class Exception extends React.PureComponent {
     const clsString = classNames(styles.exception, className);
     return (
       <div className={clsString} {...rest}>
-        <div id="editormd">
-          <textarea style={{display:'none'}}>### Hello Editor.md !</textarea>
-        </div>
+        
       </div>
     );
   }

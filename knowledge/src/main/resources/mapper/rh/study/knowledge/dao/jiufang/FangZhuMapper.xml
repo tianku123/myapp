@@ -6,6 +6,10 @@
         SELECT * FROM fangzhu WHERE phone=#{phone} AND stat != 0
     </select>
 
+    <select id="queryByOpenid" resultType="map">
+        SELECT * FROM fangzhu WHERE openid=#{openid} AND stat = 2
+    </select>
+
 
     <select id="list" resultType="map">
         SELECT
