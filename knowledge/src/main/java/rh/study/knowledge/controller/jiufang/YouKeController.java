@@ -50,7 +50,7 @@ public class YouKeController {
 
     /**
      * 新增游客，初始化微信信息，初始化游戏数
-     * @param myOpenid
+     * @param myOpenid      邀请人：坊主 或 游客，如果是坊主则增加游客数量，如果是游客则增加该游客的游戏次数
      * @param otherOpenid
      * @param nickName
      * @param avatarUrl
@@ -61,7 +61,7 @@ public class YouKeController {
      */
     @PostMapping(value = "save")
     public Result save(
-            @RequestParam String myOpenid,// 坊主id 或 游客id
+            @RequestParam String myOpenid,// 坊主openid 或 游客openid
             @RequestParam String otherOpenid, // 被邀请游客openid
             @RequestParam(required = false) String nickName,
             @RequestParam(required = false) String avatarUrl,

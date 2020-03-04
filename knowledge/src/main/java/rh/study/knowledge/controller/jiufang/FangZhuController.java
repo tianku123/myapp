@@ -63,39 +63,9 @@ public class FangZhuController {
     }
 
     @PostMapping(value = "auth")
-    public Result update(@RequestParam String sessionKey,
-                         @RequestParam String iv,
-                         @RequestParam String encryptedData,
-                         @RequestParam String openid,// 用户微信唯一标识
-                         // 微信昵称
-                         @RequestParam(required = false) String nickName,
-                         // 微信头像
-                         @RequestParam(required = false) String avatarUrl,
-                         // 性别
-                         @RequestParam(required = false) String gender,
-                         // 省份
-                         @RequestParam(required = false) String province,
-                         // 城市
-                         @RequestParam(required = false) String city
+    public Result auth(
+            @RequestBody FangZhu fangZhu
     ) {
-        AESForWeixinGetPhoneNumber aes=new AESForWeixinGetPhoneNumber(encryptedData,sessionKey,iv);
-        WeixinPhoneDecryptInfo info=aes.decrypt();
-        if (null==info){
-            return Result.failure(500, "获取手机号码失败");
-        }else {
-            if (!info.getWeixinWaterMark().getAppid().equals(CommonController.appid)){
-                return Result.failure(500, "获取手机号码失败,appid不匹配");
-            }
-        }
-        String phone = info.getPhoneNumber();
-        FangZhu fangZhu = new FangZhu();
-        fangZhu.setPhone(phone);
-        fangZhu.setOpenid(openid);
-        fangZhu.setNickName(nickName);
-        fangZhu.setAvatarUrl(avatarUrl);
-        fangZhu.setGender(gender);
-        fangZhu.setProvince(province);
-        fangZhu.setCity(city);
         return fangZhuService.update(fangZhu);
     }
 

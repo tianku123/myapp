@@ -28,7 +28,7 @@ public class FangZhuService {
 
     public Result save(FangZhu fangZhu) {
         try {
-            Map<String, Object> phone = fangZhuMapper.queryByPhone(fangZhu.getPhone());
+            FangZhu phone = fangZhuMapper.queryByPhone(fangZhu.getPhone());
             if (phone == null) {
                 int i = fangZhuMapper.insertSelective(fangZhu);
                 if (i > 0) {
@@ -69,22 +69,22 @@ public class FangZhuService {
 
     public Result update(FangZhu fangZhu) {
         try {
-            // 根据手机号码获取坊主信息
-            FangZhu fz = new FangZhu();
-            fz.setPhone(fangZhu.getPhone());
-            fz = fangZhuMapper.selectOne(fz);
+            FangZhu fz = fangZhuMapper.queryByPhone(fangZhu.getPhone());
             if (fz == null) {
                 return Result.failure(500, "坊主不存在");
             }
-            fangZhu.setOpenid(fangZhu.getOpenid());
-            fangZhu.setNickName(fangZhu.getNickName());
-            fangZhu.setAvatarUrl(fangZhu.getAvatarUrl());
-            fangZhu.setGender(fangZhu.getGender());
-            fangZhu.setProvince(fangZhu.getProvince());
-            fangZhu.setCity(fangZhu.getCity());
-            fangZhu.setUpdateTime(new Date());
+            if (2 == fz.getStat().intValue()) {
+                return Result.failure(500, "坊主已认证");
+            }
+            fz.setOpenid(fangZhu.getOpenid());
+            fz.setNickName(fangZhu.getNickName());
+            fz.setAvatarUrl(fangZhu.getAvatarUrl());
+            fz.setGender(fangZhu.getGender());
+            fz.setProvince(fangZhu.getProvince());
+            fz.setCity(fangZhu.getCity());
+            fz.setUpdateTime(new Date());
             // 状态：0删除，1创建状态，2微信认证过
-            fangZhu.setStat(2);
+            fz.setStat(2);
             int i = fangZhuMapper.updateByPrimaryKeySelective(fz);
             if (i > 0) {
                 return Result.success(i);

@@ -1,8 +1,26 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="rh.study.knowledge.dao.jiufang.FangZhuMapper">
+    
+    <resultMap id="fangzhu" type="rh.study.knowledge.entity.jiufang.FangZhu">
+        <result column="id" property="id" jdbcType="INTEGER"/>
+        <result column="openid" property="openid" jdbcType="VARCHAR"/>
+        <result column="nick_name" property="nickName" jdbcType="VARCHAR"/>
+        <result column="avatar_url" property="avatarUrl" jdbcType="VARCHAR"/>
+        <result column="gender" property="gender" jdbcType="VARCHAR"/>
+        <result column="province" property="province" jdbcType="VARCHAR"/>
+        <result column="city" property="city" jdbcType="VARCHAR"/>
+        <result column="phone" property="phone" jdbcType="VARCHAR"/>
+        <result column="name" property="name" jdbcType="VARCHAR"/>
+        <result column="num" property="num" jdbcType="INTEGER"/>
+        <result column="fc_num" property="fcNum" jdbcType="INTEGER"/>
+        <result column="yk_num" property="ykNum" jdbcType="INTEGER"/>
+        <result column="stat" property="stat" jdbcType="INTEGER"/>
+        <result column="create_time" property="createTime" jdbcType="DATE"/>
+        <result column="update_time" property="updateTime" jdbcType="DATE"/>
+    </resultMap>
 
-    <select id="queryByPhone" resultType="map">
+    <select id="queryByPhone" resultType="fangzhu">
         SELECT * FROM fangzhu WHERE phone=#{phone} AND stat != 0
     </select>
 
@@ -29,16 +47,16 @@
             stat
         FROM fangzhu
         <where>
-            <if test="stat != null and stat !=''" >
+            <if test="stat != null" >
                 AND stat = #{stat}
             </if>
-            <if test="stat == null or stat ==''" >
+            <if test="stat == null" >
                 AND stat != 0
             </if>
-            <if test="name != null and name !=''" >
+            <if test="name != null" >
                 AND name LIKE concat('',#{name},'%')
             </if>
-            <if test="phone != null and phone !=''" >
+            <if test="phone != null" >
                 AND phone LIKE concat('',#{phone},'%')
             </if>
         </where>

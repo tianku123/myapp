@@ -17,7 +17,7 @@ import java.util.Map;
 @Mapper
 public interface FangZhuMapper extends BaseMapper<FangZhu> {
 
-    Map<String, Object> queryByPhone(@Param(value = "phone") String phone);
+    FangZhu queryByPhone(@Param(value = "phone") String phone);
 
     List<Map<String,Object>> list(Map<String, Object> params);
 
