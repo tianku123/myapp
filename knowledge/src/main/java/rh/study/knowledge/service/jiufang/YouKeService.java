@@ -53,130 +53,110 @@ public class YouKeService {
      * 游客开始游戏时调用，保存游客信息
      *
      * @param youKe
-     * @param myOpenid 邀请人：坊主 或 游客，如果是坊主则增加游客数量，如果是游客则增加该游客的游戏次数
      * @return
      */
     @Transactional
-    public Result save(YouKe youKe, String myOpenid) {
-        try {
-            // 查询邀请人是否为坊主
-            FangZhu fangZhuYqr = new FangZhu();
-            fangZhuYqr.setOpenid(myOpenid);
-            fangZhuYqr = fangZhuMapper.selectOne(fangZhuYqr);
-            // 查询邀请人是否为游客
-            FangZhuYouKeRel ykYqr = new FangZhuYouKeRel();
-            ykYqr.setYkOpenid(myOpenid);
-            ykYqr = fangZhuYouKeRelMapper.selectOne(ykYqr);
-            if (fangZhuYqr == null && ykYqr == null) {
-                return Result.failure(500, "邀请人信息错误");
+    public Result save(YouKe youKe) {
+        /**
+         * 邀请人：坊主 或 游客，如果是坊主则增加游客数量，如果是游客则增加该游客的游戏次数
+         */
+        String shareOpenid = youKe.getShareOpenid();
+        // 查询邀请人是否为坊主,坊主必須是已經認證過得
+        FangZhu fangZhuYqr = new FangZhu();
+        fangZhuYqr.setOpenid(shareOpenid);
+        fangZhuYqr.setStat(2);// 已认证
+        fangZhuYqr = fangZhuMapper.selectOne(fangZhuYqr);
+        // 查询邀请人是否为游客
+        FangZhuYouKeRel ykYqr = new FangZhuYouKeRel();
+        ykYqr.setYkOpenid(shareOpenid);
+        ykYqr = fangZhuYouKeRelMapper.selectOne(ykYqr);
+        if (fangZhuYqr == null && ykYqr == null) {
+            return Result.failure(500, "无此邀请人");
+        }
+        // 如果邀请人是坊主
+        if (fangZhuYqr != null) {
+            // 判断该游客是否已经被邀请过
+            FangZhuYouKeRel fangZhuYouKeRel = new FangZhuYouKeRel();
+            //被邀请游客openid
+            fangZhuYouKeRel.setYkOpenid(youKe.getOpenid());
+            fangZhuYouKeRel = fangZhuYouKeRelMapper.selectOne(fangZhuYouKeRel);
+            if (fangZhuYouKeRel != null) {
+                return Result.failure(500, "已被邀请过");
             }
-            // 如果邀请人是坊主
-            if (fangZhuYqr != null) {
-                // 判断该游客是否已经被邀请过
-                FangZhuYouKeRel fangZhuYouKeRel = new FangZhuYouKeRel();
-//                fangZhuYouKeRel.setFzId(fangZhu.getId());
-//                fangZhuYouKeRel.setFzOpenid(fangZhu.getOpenid());
-                //被邀请游客openid
-                fangZhuYouKeRel.setYkOpenid(youKe.getOpenid());
-                fangZhuYouKeRel = fangZhuYouKeRelMapper.selectOne(fangZhuYouKeRel);
-                if (fangZhuYouKeRel != null) {
-                    return Result.failure(500, "已被邀请过");
-                }
-                youKe.setCreateTime(new Date());
-                // 保存游客信息
-                int i = youKeMapper.insertSelective(youKe);
-                if (i > 0) {
-                    /**
-                     * 游客和坊主关系表，
-                     */
-                    fangZhuYouKeRel = new FangZhuYouKeRel();
-                    fangZhuYouKeRel.setFxNum(0);//默认分享次数0
-                    fangZhuYouKeRel.setYxNum(5);//默认游戏次数5
-                    fangZhuYouKeRel.setFzId(fangZhuYqr.getId());// 坊主id
-                    fangZhuYouKeRel.setFzOpenid(fangZhuYqr.getOpenid());// 微信唯一标识
-                    fangZhuYouKeRel.setJpNum(0);//默认酒票0
-                    fangZhuYouKeRel.setYkId(youKe.getId());
-                    fangZhuYouKeRel.setYkOpenid(youKe.getOpenid());// 微信唯一标识
-                    int j = fangZhuYouKeRelMapper.insertSelective(fangZhuYouKeRel);
-                    if (j > 0) {
-                        // 更新坊主的游客数
-                        fangZhuYqr.setUpdateTime(new Date());
-                        fangZhuYqr.setYkNum(fangZhuYqr.getYkNum() + 1);
-                        fangZhuMapper.updateByPrimaryKeySelective(fangZhuYqr);
-                        return Result.success("创建成功");
-                    } else {
-                        if (youKe.getId() != null) {
-                            youKeMapper.deleteByPrimaryKey(youKe.getId());
-                        }
-                        if (fangZhuYouKeRel.getId() != null) {
-                            fangZhuYouKeRelMapper.deleteByPrimaryKey(fangZhuYouKeRel.getId());
-                        }
-                        return Result.failure(500, "游客创建失败");
-                    }
+            youKe.setCreateTime(new Date());
+            // 保存游客信息
+            int i = youKeMapper.insertSelective(youKe);
+            if (i > 0) {
+                /**
+                 * 游客和坊主关系表，
+                 */
+                fangZhuYouKeRel = new FangZhuYouKeRel();
+                fangZhuYouKeRel.setFxNum(0);//默认分享次数0
+                fangZhuYouKeRel.setYxNum(5);//默认游戏次数5
+                fangZhuYouKeRel.setFzId(fangZhuYqr.getId());// 坊主id
+                fangZhuYouKeRel.setFzOpenid(fangZhuYqr.getOpenid());// 微信唯一标识
+                fangZhuYouKeRel.setJpNum(0);//默认酒票0
+                fangZhuYouKeRel.setYkId(youKe.getId());
+                fangZhuYouKeRel.setYkOpenid(youKe.getOpenid());// 微信唯一标识
+                int j = fangZhuYouKeRelMapper.insertSelective(fangZhuYouKeRel);
+                if (j > 0) {
+                    // 更新坊主的游客数
+                    fangZhuYqr.setUpdateTime(new Date());
+                    fangZhuYqr.setYkNum(fangZhuYqr.getYkNum() == null ? 0 : fangZhuYqr.getYkNum() + 1);
+                    fangZhuMapper.updateByPrimaryKeySelective(fangZhuYqr);
+                    return Result.success("创建成功");
                 } else {
-                    if (youKe.getId() != null) {
-                        youKeMapper.deleteByPrimaryKey(youKe.getId());
-                    }
                     return Result.failure(500, "游客创建失败");
                 }
-            } else {// 游客邀请游客
-                // 判断该游客是否已经被邀请过
-                FangZhuYouKeRel fangZhuYouKeRel = new FangZhuYouKeRel();
-                //被邀请游客openid
-                fangZhuYouKeRel.setYkOpenid(youKe.getOpenid());
-                fangZhuYouKeRel = fangZhuYouKeRelMapper.selectOne(fangZhuYouKeRel);
-                if (fangZhuYouKeRel != null) {
-                    return Result.failure(500, "已被邀请过");
-                }
+            } else {
+                return Result.failure(500, "游客创建失败");
+            }
+        } else {// 游客邀请游客
+            // 判断该游客是否已经被邀请过
+            FangZhuYouKeRel fangZhuYouKeRel = new FangZhuYouKeRel();
+            //被邀请游客openid
+            fangZhuYouKeRel.setYkOpenid(youKe.getOpenid());
+            fangZhuYouKeRel = fangZhuYouKeRelMapper.selectOne(fangZhuYouKeRel);
+            if (fangZhuYouKeRel != null) {
+                return Result.failure(500, "已被邀请过");
+            }
 
-                // 保存游客信息
-                youKe.setCreateTime(new Date());
-                int i = youKeMapper.insertSelective(youKe);
-                if (i > 0) {
+            // 保存游客信息
+            youKe.setCreateTime(new Date());
+            int i = youKeMapper.insertSelective(youKe);
+            if (i > 0) {
+                /**
+                 * 游客和坊主关系表，
+                 */
+                fangZhuYouKeRel = new FangZhuYouKeRel();
+                fangZhuYouKeRel.setFxNum(0);//默认分享次数0
+                fangZhuYouKeRel.setYxNum(5);//默认游戏次数5
+                fangZhuYouKeRel.setFzId(ykYqr.getFzId());// 邀请人所在酒坊id（坊主id）
+                fangZhuYouKeRel.setFzOpenid(ykYqr.getFzOpenid());// 微信唯一标识
+                fangZhuYouKeRel.setJpNum(0);//默认酒票0
+                fangZhuYouKeRel.setYkId(youKe.getId());
+                fangZhuYouKeRel.setYkOpenid(youKe.getOpenid());// 微信唯一标识
+                int j = fangZhuYouKeRelMapper.insertSelective(fangZhuYouKeRel);
+                if (j > 0) {
+                    fangZhuYqr = fangZhuMapper.selectByPrimaryKey(fangZhuYouKeRel.getFzId());
+                    // 更新坊主的游客数
+                    fangZhuYqr.setUpdateTime(new Date());
+                    fangZhuYqr.setYkNum(fangZhuYqr.getYkNum() == null ? 0 : fangZhuYqr.getYkNum() + 1);
+                    fangZhuMapper.updateByPrimaryKeySelective(fangZhuYqr);
                     /**
-                     * 游客和坊主关系表，
+                     * 奖励游客邀请人，加游戏次数 和 酒票
                      */
-                    fangZhuYouKeRel = new FangZhuYouKeRel();
-                    fangZhuYouKeRel.setFxNum(0);//默认分享次数0
-                    fangZhuYouKeRel.setYxNum(5);//默认游戏次数5
-                    fangZhuYouKeRel.setFzId(ykYqr.getFzId());// 邀请人所在酒坊id（坊主id）
-                    fangZhuYouKeRel.setFzOpenid(ykYqr.getFzOpenid());// 微信唯一标识
-                    fangZhuYouKeRel.setJpNum(0);//默认酒票0
-                    fangZhuYouKeRel.setYkId(youKe.getId());
-                    fangZhuYouKeRel.setYkOpenid(youKe.getOpenid());// 微信唯一标识
-                    int j = fangZhuYouKeRelMapper.insertSelective(fangZhuYouKeRel);
-                    if (j > 0) {
-                        fangZhuYqr = fangZhuMapper.selectByPrimaryKey(fangZhuYouKeRel.getFzId());
-                        // 更新坊主的游客数
-                        fangZhuYqr.setUpdateTime(new Date());
-                        fangZhuYqr.setYkNum(fangZhuYqr.getYkNum() + 1);
-                        fangZhuMapper.updateByPrimaryKeySelective(fangZhuYqr);
-                        /**
-                         * 奖励游客邀请人，加游戏次数 和 酒票
-                         */
-                        ykYqr.setYxNum(ykYqr.getYxNum() + 5);
-                        // TODO 酒票应该怎么减，减谁的
-                        fangZhuYouKeRelMapper.updateByPrimaryKey(ykYqr);
-                        return Result.success("创建成功");
-                    } else {
-                        if (youKe.getId() != null) {
-                            youKeMapper.deleteByPrimaryKey(youKe.getId());
-                        }
-                        if (fangZhuYouKeRel.getId() != null) {
-                            fangZhuYouKeRelMapper.deleteByPrimaryKey(fangZhuYouKeRel.getId());
-                        }
-                        return Result.failure(500, "游客创建失败");
-                    }
+                    ykYqr.setYxNum(ykYqr.getYxNum() + 5);
+                    // TODO 酒票应该怎么减，减谁的
+                    fangZhuYouKeRelMapper.updateByPrimaryKey(ykYqr);
+                    return Result.success("创建成功");
                 } else {
-                    if (youKe.getId() != null) {
-                        youKeMapper.deleteByPrimaryKey(youKe.getId());
-                    }
                     return Result.failure(500, "游客创建失败");
                 }
-
+            } else {
+                return Result.failure(500, "游客创建失败");
             }
-        } catch (Exception e) {
-            return Result.failure(500, "创建失败");
+
         }
     }
 

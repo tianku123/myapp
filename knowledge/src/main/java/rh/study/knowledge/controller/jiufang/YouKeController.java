@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import rh.study.knowledge.common.result.PageResult;
 import rh.study.knowledge.common.result.Result;
+import rh.study.knowledge.common.result.ServiceException;
 import rh.study.knowledge.entity.jiufang.YouKe;
 import rh.study.knowledge.service.jiufang.YouKeService;
 
@@ -50,33 +51,19 @@ public class YouKeController {
 
     /**
      * 新增游客，初始化微信信息，初始化游戏数
-     * @param myOpenid      邀请人：坊主 或 游客，如果是坊主则增加游客数量，如果是游客则增加该游客的游戏次数
-     * @param otherOpenid
-     * @param nickName
-     * @param avatarUrl
-     * @param gender
-     * @param province
-     * @param city
      * @return
      */
     @PostMapping(value = "save")
     public Result save(
-            @RequestParam String myOpenid,// 坊主openid 或 游客openid
-            @RequestParam String otherOpenid, // 被邀请游客openid
-            @RequestParam(required = false) String nickName,
-            @RequestParam(required = false) String avatarUrl,
-            @RequestParam(required = false) String gender,
-            @RequestParam(required = false) String province,
-            @RequestParam(required = false) String city
+            @RequestBody YouKe youKe
     ) {
-        YouKe youKe = new YouKe();
-        youKe.setOpenid(otherOpenid);
-        youKe.setNickName(nickName);
-        youKe.setAvatarUrl(avatarUrl);
-        youKe.setGender(gender);
-        youKe.setProvince(province);
-        youKe.setCity(city);
-        return youKeService.save(youKe, myOpenid);
+        if (youKe.getOpenid() == null) {
+            throw new ServiceException(403, "openid必传");
+        }
+        if (youKe.getShareOpenid() == null) {
+            throw new ServiceException(403, "shareOpenid必传");
+        }
+        return youKeService.save(youKe);
     }
 
     /**

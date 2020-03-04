@@ -3,10 +3,7 @@ package rh.study.knowledge.entity.jiufang;
 import lombok.Getter;
 import lombok.Setter;
 
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.*;
 import java.util.Date;
 
 /**
@@ -40,4 +37,9 @@ public class YouKe {
     private Date createTime;
     // 更新时间
     private Date updateTime;
+
+    // 非数据库字段 ===============
+    // 分享者，可能是坊主 或 游客
+    @Transient
+    private String shareOpenid;
 }

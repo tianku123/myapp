@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import rh.study.knowledge.common.result.PageResult;
 import rh.study.knowledge.common.result.Result;
+import rh.study.knowledge.common.result.ServiceException;
 import rh.study.knowledge.entity.jiufang.FangZhu;
 import rh.study.knowledge.entity.wechat.WeixinPhoneDecryptInfo;
 import rh.study.knowledge.service.jiufang.FangZhuService;
@@ -44,6 +45,8 @@ public class FangZhuController {
         fangZhu.setName(name);
         fangZhu.setPhone(phone);
         fangZhu.setNum(num);
+        fangZhu.setFcNum(0);
+        fangZhu.setYkNum(0);
         // 状态：0删除，1创建状态，2微信认证过
         fangZhu.setStat(1);
         fangZhu.setCreateTime(new Date());
@@ -66,6 +69,12 @@ public class FangZhuController {
     public Result auth(
             @RequestBody FangZhu fangZhu
     ) {
+        if (fangZhu.getOpenid() == null) {
+            throw new ServiceException(403, "openid必传");
+        }
+        if (fangZhu.getPhone() == null) {
+            throw new ServiceException(403, "phone必传");
+        }
         return fangZhuService.update(fangZhu);
     }
 

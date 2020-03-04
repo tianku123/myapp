@@ -39,6 +39,7 @@
             province,
             city,
             phone,
+            gender,
             create_time as createTime,
             update_time as updateTime,
             num,
