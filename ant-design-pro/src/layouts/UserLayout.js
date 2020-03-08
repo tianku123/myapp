@@ -48,11 +48,11 @@ class UserLayout extends React.PureComponent {
     return (
       // @TODO <DocumentTitle title={this.getPageTitle()}>
       <div className={styles.container}>
-        <div className={styles.lang}>
+        {/* <div className={styles.lang}>
           <SelectLang />
-        </div>
+        </div> */}
         <div className={styles.content}>
-          <div className={styles.top}>
+          {/* <div className={styles.top}>
             <div className={styles.header}>
               <Link to="/">
                 <img alt="logo" className={styles.logo} src={logo} />
@@ -60,10 +60,10 @@ class UserLayout extends React.PureComponent {
               </Link>
             </div>
             <div className={styles.desc}>Ant Design 是西湖区最具影响力的 Web 设计规范</div>
-          </div>
+          </div> */}
           {children}
         </div>
-        <GlobalFooter links={links} copyright={copyright} />
+        {/* <GlobalFooter links={links} copyright={copyright} /> */}
       </div>
     );
   }

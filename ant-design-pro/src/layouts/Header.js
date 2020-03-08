@@ -136,9 +136,9 @@ class HeaderView extends PureComponent {
         ) : (
           <GlobalHeader
             onCollapse={handleMenuCollapse}
-            onNoticeClear={this.handleNoticeClear}
-            onMenuClick={this.handleMenuClick}
-            onNoticeVisibleChange={this.handleNoticeVisibleChange}
+            // onNoticeClear={this.handleNoticeClear}
+            // onMenuClick={this.handleMenuClick}
+            // onNoticeVisibleChange={this.handleNoticeVisibleChange}
             {...this.props}
           />
         )}
@@ -155,7 +155,7 @@ class HeaderView extends PureComponent {
 export default connect(({ user, global, setting, loading }) => ({
   currentUser: user.currentUser,
   collapsed: global.collapsed,
-  fetchingNotices: loading.effects['global/fetchNotices'],
+  // fetchingNotices: loading.effects['global/fetchNotices'],
   notices: global.notices,
   setting,
 }))(HeaderView);
