@@ -14,6 +14,7 @@ https://api.weixin.qq.com/sns/jscode2session?appid=wx042d9b5b159808fe&secret=911
 
 http://localhost:8080//api/wechat/common/openid?code=0212dn6y1c2buc0Nwd7y1mrE6y12dn6k
 
+github  : 54d85ed569f39fd3c4410978077d29f34fd50767
 
 ryan/wsdsl19930519!@#
 IP：101.132.126.120
@@ -23,5 +24,14 @@ IP：101.132.126.120
  mysql: /home/ryan/app/mysql
 nginx:/home/ryan/app/openresty/nginx
 
+http://localhost:8080//api/wechat/fz/authTest?phoneNumber=18512548285&openid=11111111
+
+原来的坊主变成了现在的经销商，认证接口啥的不变
+创建酒坊独立出来
+邀请游客进入酒坊，一个酒坊最多10个人，判断是否同时在线
+开始游戏，每个游客监听是否开始游戏
+游戏开始了，每个游客请求接口获取对应的点子，然后酒坊页面显示点子的排行榜  
+每局都有排行榜  每一次还要累加
+三局后公布最终胜负排行榜
 
 
