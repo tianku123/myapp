@@ -36,3 +36,14 @@ pagehelper:
 
 ht_username: admin
 ht_password: Admin@123
+
+#酒票总数
+jpTotal: 20000
+#游客被邀请，每次获取一张酒票，最多获取2张
+shareJpNum: 2
+
+areaCity: 郑州市,许昌市,开封市,南阳市,新乡市,漯河市,南京市,无锡市,徐州市,常州市,苏州市,南通市,连云港市,淮安市,盐城市,扬州市,镇江市,泰州市,宿迁市
+areaOpen: true
+
+#进入酒坊的人数（不包括经销商）不超过多少人
+jfPerNum: 10

@@ -6,8 +6,8 @@ export default [
     routes: [
       { path: '/user', redirect: '/user/login' },
       { path: '/user/login', component: './User/Login' },
-      { path: '/user/register', component: './User/Register' },
-      { path: '/user/register-result', component: './User/RegisterResult' },
+      // { path: '/user/register', component: './User/Register' },
+      // { path: '/user/register-result', component: './User/RegisterResult' },
     ],
   },
   // app
@@ -30,11 +30,11 @@ export default [
             name: 'fangzhu',
             component: './List/fangzhu/FangZhuList',
           },
-          {
-            path: '/dashboard/jprank',
-            name: 'jprank',
-            component: './List/rank/JpRankList',
-          },
+          // {
+          //   path: '/dashboard/jprank',
+          //   name: 'jprank',
+          //   component: './List/rank/JpRankList',
+          // },
           // {
           //   path: '/dashboard/ykrank',
           //   name: 'ykrank',

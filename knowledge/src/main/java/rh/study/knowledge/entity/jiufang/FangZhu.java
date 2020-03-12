@@ -7,7 +7,7 @@ import javax.persistence.*;
 import java.util.Date;
 
 /**
- * 坊主（酒坊主），拥有一定量的酒票，负责分享小程序游戏，邀请游客参与并分发酒票
+ * 经销商（酒经销商），拥有一定量的酒票，负责分享小程序游戏，邀请游客参与并分发酒票
  */
 @Getter
 @Setter
@@ -41,7 +41,7 @@ public class FangZhu {
     // 更新时间
 //    @Column(name = "u_time")
     private Date updateTime;
-    // 酒坊名称
+    // 经销商名称
     private String name;
     // 总酒票数
     private Integer num;
@@ -53,4 +53,8 @@ public class FangZhu {
     private Integer ykNum;
     // 状态：0删除，1创建状态，2微信认证过
     private Integer stat;
+
+    // 类型：1表示经销商，2：表示游客
+    @Transient
+    private Integer tp;
 }

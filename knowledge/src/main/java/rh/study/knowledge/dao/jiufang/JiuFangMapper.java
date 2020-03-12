@@ -2,9 +2,7 @@ package rh.study.knowledge.dao.jiufang;
 
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
-import org.springframework.stereotype.Repository;
-import rh.study.knowledge.entity.jiufang.FangZhu;
-import rh.study.knowledge.entity.jiufang.YouKe;
+import rh.study.knowledge.entity.jiufang.JiuFang;
 import tk.mybatis.mapper.common.BaseMapper;
 
 import java.util.List;
@@ -15,9 +13,9 @@ import java.util.Map;
  */
 //@Repository("fangZhuMapper")
 @Mapper
-public interface FangZhuMapper extends BaseMapper<FangZhu> {
+public interface JiuFangMapper extends BaseMapper<JiuFang> {
 
-    FangZhu queryByPhone(@Param(value = "phone") String phone);
+    JiuFang queryByPhone(@Param(value = "phone") String phone);
 
     List<Map<String,Object>> list(Map<String, Object> params);
 

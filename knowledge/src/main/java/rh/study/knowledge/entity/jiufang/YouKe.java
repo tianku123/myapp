@@ -37,9 +37,24 @@ public class YouKe {
     private Date createTime;
     // 更新时间
     private Date updateTime;
+    // 收货地址
+    private String address;
+    // 收货手机号码
+    private String sh_phone;
+    // 已完游戏次数
+    private Integer yxNum;
+    // 赢取酒票数
+    private Integer jpNum;
+    // 认证时免费获取一张，邀请其他游客进入酒坊每次获取一张酒票（最分享两次获取两张），总共三张免费酒票
+    private Integer freeNum;
 
     // 非数据库字段 ===============
-    // 分享者，可能是坊主 或 游客
+    // 分享者，可能是经销商 或 游客
     @Transient
     private String shareOpenid;
+    // 酒坊id
+    @Transient
+    private Integer jfId;
+
+
 }

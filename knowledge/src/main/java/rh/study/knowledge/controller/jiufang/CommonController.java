@@ -9,18 +9,20 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.util.EntityUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.util.StringUtils;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import rh.study.knowledge.common.result.Result;
+import rh.study.knowledge.common.result.ServiceException;
 import rh.study.knowledge.entity.jiufang.FangZhu;
+import rh.study.knowledge.entity.jiufang.YouKe;
 import rh.study.knowledge.service.jiufang.FangZhuService;
+import rh.study.knowledge.service.jiufang.YouKeService;
 import rh.study.knowledge.util.aes.AESForWeixinGetPhoneNumber;
 import rh.study.knowledge.entity.wechat.WeixinPhoneDecryptInfo;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -33,15 +35,68 @@ public class CommonController {
 
     public static final String secret = "91135584368c0ce12474f76643279762";
 
+    @Value("${areaCity}")
+    private String areaCity;
+
+    @Value("${areaOpen}")
+    private Boolean areaOpen;
+
     @Autowired
     private FangZhuService fangZhuService;
+
+    @Autowired
+    private YouKeService youKeService;
+
+
+    @PostMapping(value = "auth")
+    public Result auth(
+            @RequestBody FangZhu fangZhu
+    ) {
+        // 类型：1表示经销商，2：表示游客
+        if (fangZhu.getTp() == null || (fangZhu.getTp().intValue() != 1 && fangZhu.getTp().intValue() != 2)) {
+            throw new ServiceException(400, "tp参数错误");
+        }
+        if (fangZhu.getOpenid() == null) {
+            throw new ServiceException(400, "openid必传");
+        }
+        if (fangZhu.getPhone() == null) {
+            throw new ServiceException(400, "phone必传");
+        }
+        //类型：1表示经销商，2：表示游客
+        if (fangZhu.getTp().intValue() == 1) {
+            return fangZhuService.auth(fangZhu);
+        } else {
+            YouKe yk = new YouKe();
+            yk.setPhone(fangZhu.getPhone());
+            yk.setOpenid(fangZhu.getOpenid());
+            yk.setNickName(fangZhu.getNickName());
+            yk.setProvince(fangZhu.getProvince());
+            yk.setCity(fangZhu.getCity());
+            yk.setAvatarUrl(fangZhu.getAvatarUrl());
+            return youKeService.auth(yk);
+        }
+    }
 
     @GetMapping(value = "openid")
     public Result openid(@RequestParam String code) {
         if (StringUtils.isEmpty(code)) {
-            Result.failure(304, "参数错误");
+            Result.failure(400, "参数错误");
         }
         return getOpenid(code);
+    }
+
+    @GetMapping(value = "area")
+    public Result area() {
+        Map<String, Object> resMap = new HashMap<>();
+        resMap.put("isOpen", false);
+        resMap.put("list", null);
+        if (areaCity != null) {
+            resMap.put("list", Arrays.asList(areaCity.split(",")));
+        }
+        if (areaOpen != null) {
+            resMap.put("isOpen", areaOpen);
+        }
+        return Result.success(resMap);
     }
 
     @GetMapping(value = "/getPhoneNumber")
@@ -89,13 +144,44 @@ public class CommonController {
                 String str = EntityUtils.toString(responseEntity);
                 Map<String, Object> map = parseResponse(str);
                 if (map != null && map.containsKey("openid")) {
-                    // 根据openid 查询该坊主是否已经微信认证
+                    // 根据openid 查询该经销商是否已经微信认证
                     String openid = MapUtils.getString(map, "openid");
-                    Map<String, Object> fangZhu = fangZhuService.queryByOpenid(openid);
+                    FangZhu fangZhu = fangZhuService.queryByOpenid(openid);
+                    map.put("isOwner", false);
                     if (fangZhu == null) {
-                        map.put("isOwner", false);
+                        // 不是经销商，查询是否为游客
+                        YouKe youKe = youKeService.queryByOpenid(openid);
+                        // 是否为游客
+                        map.put("isYk", true);
+                        if (youKe == null) {
+//                            // 不是供应商，则初始化游客一张票
+//                            youKe = new YouKe();
+//                            youKe.setOpenid(openid);
+//                            // 游客登录送一张酒票
+//                            youKe.setJpNum(1);
+//                            youKeService.save(youKe);
+//                            if (youKe == null) {
+//                                throw new ServiceException(500, "接口异常");
+//                            }
+                            // 是游客则返回游客信息
+                            // 游客参与游戏次数
+//                            map.put("yxNum", youKe.getYxNum());
+//                            // 游客酒票数
+//                            map.put("jpNum", youKe.getJpNum());
+                        } else {
+                            map.put("isOwner", true);
+                            map.put("isYk", true);
+                            // 是游客则返回游客信息
+                            // 游客参与游戏次数
+                            map.put("yxNum", youKe.getYxNum());
+                            // 游客酒票数
+                            map.put("jpNum", youKe.getJpNum());
+                        }
                     } else {
                         map.put("isOwner", true);
+                        map.put("isYk", false);
+                        // 经销商剩余酒票
+                        map.put("jpNum", (fangZhu.getNum() - fangZhu.getFcNum()));
                     }
                 }
                 return Result.success(map);

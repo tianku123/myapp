@@ -38,7 +38,7 @@ public class FangZhuController {
     @PostMapping(value = "save")
     public Result save(
             @RequestParam String name,// 酒坊名称
-            @RequestParam String phone, // 坊主手机号码
+            @RequestParam String phone, // 经销商手机号码
             @RequestParam Integer num // 票数
     ) {
         FangZhu fangZhu = new FangZhu();
@@ -65,18 +65,18 @@ public class FangZhuController {
         return fangZhuService.update(fangZhu);
     }
 
-    @PostMapping(value = "auth")
-    public Result auth(
-            @RequestBody FangZhu fangZhu
-    ) {
-        if (fangZhu.getOpenid() == null) {
-            throw new ServiceException(403, "openid必传");
-        }
-        if (fangZhu.getPhone() == null) {
-            throw new ServiceException(403, "phone必传");
-        }
-        return fangZhuService.update(fangZhu);
-    }
+//    @PostMapping(value = "auth")
+//    public Result auth(
+//            @RequestBody FangZhu fangZhu
+//    ) {
+//        if (fangZhu.getOpenid() == null) {
+//            throw new ServiceException(403, "openid必传");
+//        }
+//        if (fangZhu.getPhone() == null) {
+//            throw new ServiceException(403, "phone必传");
+//        }
+//        return fangZhuService.update(fangZhu);
+//    }
 
     @PostMapping(value = "delete")
     public Result delete(@RequestParam Integer id) {
