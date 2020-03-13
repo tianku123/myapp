@@ -9,7 +9,7 @@ import rh.study.knowledge.common.result.PageResult;
 import rh.study.knowledge.common.result.Result;
 import rh.study.knowledge.dao.jiufang.*;
 import rh.study.knowledge.entity.jiufang.YouKe;
-import rh.study.knowledge.entity.jiufang.YxSuccess;
+import rh.study.knowledge.entity.jiufang.YkSuccess;
 
 import java.util.Date;
 import java.util.HashMap;
@@ -35,7 +35,7 @@ public class YouKeService {
     private JpConfigService jpConfigService;
 
     @Autowired
-    private YxSuccessMapper yxSuccessMapper;
+    private YkSuccessMapper ykSuccessMapper;
 
     public PageResult listPagable(int current, int pageSize, Map<String, Object> params) {
         //分页查询，包括分页和总数查询，第三个参数是控制是否计算总数，默认是true,true为查询总数，分页效果只对其后的第一个查询有效。
@@ -307,6 +307,7 @@ public class YouKeService {
      * @param yk
      * @return
      */
+    @Transactional
     public Result auth(YouKe yk) {
         YouKe youk = new YouKe();
         youk.setOpenid(yk.getOpenid());
@@ -325,16 +326,16 @@ public class YouKeService {
         if (i > 0) {
             jpConfigService.addJpNum(1);
             // 初始化我的战绩
-            YxSuccess ys = new YxSuccess();
+            YkSuccess ys = new YkSuccess();
             ys.setYkOpenid(yk.getOpenid());
             ys.setNum(0);
             ys.setYxTp(1);
-            yxSuccessMapper.insert(ys);
-            ys = new YxSuccess();
+            ykSuccessMapper.insert(ys);
+            ys = new YkSuccess();
             ys.setYkOpenid(yk.getOpenid());
             ys.setNum(0);
             ys.setYxTp(2);
-            yxSuccessMapper.insert(ys);
+            ykSuccessMapper.insert(ys);
 //            youk = youKeMapper.selectByPrimaryKey(youk.getId());
             Map<String, Object> resMap = new HashMap<>();
             resMap.put("openid", yk.getOpenid());

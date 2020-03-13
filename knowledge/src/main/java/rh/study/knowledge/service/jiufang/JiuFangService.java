@@ -33,7 +33,7 @@ public class JiuFangService {
     private YouKeMapper youKeMapper;
 
     @Autowired
-    private YxSuccessMapper yxSuccessMapper;
+    private YkSuccessMapper ykSuccessMapper;
 
     @Autowired
     private JpConfigService jpConfigService;
@@ -408,13 +408,13 @@ public class JiuFangService {
             // 更新游客赢得酒票
             youKeMapper.updateByPrimaryKey(youKe);
             // 更新游客战绩
-            YxSuccess yxSuccess = new YxSuccess();
-            yxSuccess.setYkOpenid(openid);
-            yxSuccess.setYxTp(yxTp);
-            yxSuccess = yxSuccessMapper.selectOne(yxSuccess);
-            if (yxSuccess != null) {
-                yxSuccess.setNum(yxSuccess.getNum() + num);
-                yxSuccessMapper.updateByPrimaryKey(yxSuccess);
+            YkSuccess ykSuccess = new YkSuccess();
+            ykSuccess.setYkOpenid(openid);
+            ykSuccess.setYxTp(yxTp);
+            ykSuccess = ykSuccessMapper.selectOne(ykSuccess);
+            if (ykSuccess != null) {
+                ykSuccess.setNum(ykSuccess.getNum() + num);
+                ykSuccessMapper.updateByPrimaryKey(ykSuccess);
             }
         }
     }
@@ -429,13 +429,13 @@ public class JiuFangService {
     private void updateZjByYoukeOpenid(Map<String, Object> map, int num, int yxTp) {
         String openid = MapUtils.getString(map, "openid");
         // 更新游客战绩
-        YxSuccess yxSuccess = new YxSuccess();
-        yxSuccess.setYkOpenid(openid);
-        yxSuccess.setYxTp(yxTp);
-        yxSuccess = yxSuccessMapper.selectOne(yxSuccess);
-        if (yxSuccess != null) {
-            yxSuccess.setNum(yxSuccess.getNum() + num);
-            yxSuccessMapper.updateByPrimaryKey(yxSuccess);
+        YkSuccess ykSuccess = new YkSuccess();
+        ykSuccess.setYkOpenid(openid);
+        ykSuccess.setYxTp(yxTp);
+        ykSuccess = ykSuccessMapper.selectOne(ykSuccess);
+        if (ykSuccess != null) {
+            ykSuccess.setNum(ykSuccess.getNum() + num);
+            ykSuccessMapper.updateByPrimaryKey(ykSuccess);
         }
     }
 
@@ -485,16 +485,16 @@ public class JiuFangService {
         if (youKe == null) {
             throw new ServiceException(500, "游客不存在");
         }
-        YxSuccess yl = new YxSuccess();
+        YkSuccess yl = new YkSuccess();
         yl.setYkOpenid(openid);
-        List<YxSuccess> list = yxSuccessMapper.select(yl);
+        List<YkSuccess> list = ykSuccessMapper.select(yl);
         List<Map<String, Object>> resList = new ArrayList<>();
         Map<String, Object> map;
         if (CollectionUtils.isNotEmpty(list)) {
-            for (YxSuccess yxSuccess : list) {
+            for (YkSuccess ykSuccess : list) {
                 map = new HashMap<>();
-                map.put("tp", yxSuccess.getYxTp());
-                map.put("jpNum", yxSuccess.getNum());
+                map.put("tp", ykSuccess.getYxTp());
+                map.put("jpNum", ykSuccess.getNum());
             }
         }
         return Result.success(resList);

@@ -13,8 +13,8 @@ import javax.persistence.Table;
  */
 @Getter
 @Setter
-@Table(name = "yx_success")
-public class YxSuccess {
+@Table(name = "yk_success")
+public class YkSuccess {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
