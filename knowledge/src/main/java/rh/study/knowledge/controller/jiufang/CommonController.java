@@ -59,11 +59,11 @@ public class CommonController {
         if (fangZhu.getOpenid() == null) {
             throw new ServiceException(400, "openid必传");
         }
-        if (fangZhu.getPhone() == null) {
-            throw new ServiceException(400, "phone必传");
-        }
         //类型：1表示经销商，2：表示游客
         if (fangZhu.getTp().intValue() == 1) {
+            if (fangZhu.getPhone() == null) {
+                throw new ServiceException(400, "phone必传");
+            }
             return fangZhuService.auth(fangZhu);
         } else {
             YouKe yk = new YouKe();
@@ -152,36 +152,29 @@ public class CommonController {
                         // 不是经销商，查询是否为游客
                         YouKe youKe = youKeService.queryByOpenid(openid);
                         // 是否为游客
-                        map.put("isYk", true);
-                        if (youKe == null) {
-//                            // 不是供应商，则初始化游客一张票
-//                            youKe = new YouKe();
-//                            youKe.setOpenid(openid);
-//                            // 游客登录送一张酒票
-//                            youKe.setJpNum(1);
-//                            youKeService.save(youKe);
-//                            if (youKe == null) {
-//                                throw new ServiceException(500, "接口异常");
-//                            }
-                            // 是游客则返回游客信息
-                            // 游客参与游戏次数
-//                            map.put("yxNum", youKe.getYxNum());
-//                            // 游客酒票数
-//                            map.put("jpNum", youKe.getJpNum());
-                        } else {
+
+                        if (youKe != null) {
                             map.put("isOwner", true);
-                            map.put("isYk", true);
+                            //1表示经销商，2：表示游客
+                            map.put("tp", 2);
                             // 是游客则返回游客信息
                             // 游客参与游戏次数
                             map.put("yxNum", youKe.getYxNum());
                             // 游客酒票数
                             map.put("jpNum", youKe.getJpNum());
+                            map.put("nickName", youKe.getNickName());
+                            map.put("avatarUrl", youKe.getAvatarUrl());
+                            map.put("gender", youKe.getGender());
                         }
                     } else {
                         map.put("isOwner", true);
-                        map.put("isYk", false);
+                        //1表示经销商，2：表示游客
+                        map.put("tp", 1);
                         // 经销商剩余酒票
                         map.put("jpNum", (fangZhu.getNum() - fangZhu.getFcNum()));
+                        map.put("nickName", fangZhu.getNickName());
+                        map.put("avatarUrl", fangZhu.getAvatarUrl());
+                        map.put("gender", fangZhu.getGender());
                     }
                 }
                 return Result.success(map);

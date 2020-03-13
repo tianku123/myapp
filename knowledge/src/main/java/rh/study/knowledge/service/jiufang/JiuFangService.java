@@ -1,6 +1,7 @@
 package rh.study.knowledge.service.jiufang;
 
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.MapUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -37,6 +38,7 @@ public class JiuFangService {
     @Autowired
     private JpConfigService jpConfigService;
 
+    @Transactional
     public Result save(JiuFang jiuFang) {
         FangZhu fz = new FangZhu();
         fz.setOpenid(jiuFang.getOpenid());
@@ -51,6 +53,8 @@ public class JiuFangService {
             if (fz.getNum() - fz.getFcNum() < jiuFang.getNum()) {
                 throw new ServiceException(500, "经销商剩余酒票不足，无法创建酒坊");
             }
+            // 经销商创建房间自己不算房间人数
+            jiuFang.setPerNum(0);
         } else if (yk != null) {// 判断游客剩余酒票
             if (jiuFang.getNum() != 1) {
                 throw new ServiceException(500, "游客只能用一张酒票创建酒坊");
@@ -58,9 +62,9 @@ public class JiuFangService {
             if (yk.getJpNum() < jiuFang.getNum()) {
                 throw new ServiceException(500, "剩余酒票不足，无法创建酒坊");
             }
+            // 游客自己创建房间自己算房间人数
+            jiuFang.setPerNum(1);
         }
-        // 初始化酒坊人数为1人（经销商自己）
-        jiuFang.setPerNum(1);
         int i = jiuFangMapper.insertSelective(jiuFang);
         if (i > 0) {
             if (fz != null) {// 减去经销商剩余酒票
@@ -71,6 +75,18 @@ public class JiuFangService {
                 // 游客减少酒票
                 yk.setJpNum(yk.getJpNum() - jiuFang.getNum());
                 youKeMapper.updateByPrimaryKey(yk);
+                /**
+                 * 游客需要进入游客列表，参与游戏分酒票
+                 */
+                JiuFangYouKeLog jiuFangYouKeLog = new JiuFangYouKeLog();
+                jiuFangYouKeLog.setJfId(jiuFang.getId());
+                jiuFangYouKeLog.setOpenid(yk.getOpenid());
+                // 1:经销商；2:游客
+                jiuFangYouKeLog.setJfTp(jiuFang.getTp());
+                // 1:筛子;2:病毒大作战
+                jiuFangYouKeLog.setYxTp(jiuFang.getYxTp());
+                jiuFangYouKeLog.setCreateTime(new Date());
+                jiuFangYouKeLogMapper.insertSelective(jiuFangYouKeLog);
             }
             return Result.success(jiuFang.getId());
         } else {
@@ -88,7 +104,7 @@ public class JiuFangService {
             throw new ServiceException(500, "酒坊不存在");
         }
         int perNum = jiuFang.getPerNum();
-        if (perNum == jfPerNum) {
+        if (perNum >= jfPerNum) {
             throw new ServiceException(500, "酒坊人数已满");
         }
         // 酒坊创建者，1:经销商；2:游客
@@ -133,6 +149,11 @@ public class JiuFangService {
         List<Map<String, Object>> ykList = jiuFangYouKeLogMapper.queryYoukeByJfId(jfId);
         Map<String, Object> resMap = new HashMap<>();
         resMap.put("status", jiuFang.getStat());
+        resMap.put("createrOpenid", jiuFang.getOpenid());
+        resMap.put("yxTp", jiuFang.getYxTp());
+        resMap.put("tp", jiuFang.getTp());
+        resMap.put("name", jiuFang.getName());
+        resMap.put("perNum", jiuFang.getPerNum());
         resMap.put("list", ykList);
         return Result.success(resMap);
     }
@@ -142,6 +163,19 @@ public class JiuFangService {
         if (jiuFang == null) {
             throw new ServiceException(500, "酒坊不存在");
         }
+        List<Map<String, Object>> ykList = jiuFangYouKeLogMapper.queryYoukeByJfId(jiuFangYouKeLog.getJfId());
+        if (CollectionUtils.isEmpty(ykList)) {
+            throw new ServiceException(500, "必须邀请两人才可以开始游戏");
+        }
+        // 创建酒坊者：1:供应商；2:游客
+        int tp = jiuFang.getTp();
+        if (tp == 1 && ykList.size() < 2) {// 经销商不算游戏人数
+            throw new ServiceException(500, "必须邀请两人才可以开始游戏");
+        }
+        if (tp == 2 && ykList.size() < 3) {// 游客创建房间创建者算游戏人数
+            throw new ServiceException(500, "必须邀请两人才可以开始游戏");
+        }
+
         // 1：开始，2，结束
 //        int tp = jiuFangYouKeLog.getTp();
         jiuFang = new JiuFang();
@@ -221,9 +255,9 @@ public class JiuFangService {
         if (jiuFang == null) {
             throw new ServiceException(500, "酒坊不存在");
         }
-        if (jiuFang.getStat() != 2) {
-            throw new ServiceException(500, "酒坊内游戏未结束");
-        }
+//        if (jiuFang.getStat() != 2) {
+//            throw new ServiceException(500, "酒坊内游戏未结束");
+//        }
         // 创建酒坊者：1:供应商；2:游客
         int tp = jiuFang.getTp();
         // 1:筛子;2:病毒大作战
@@ -231,20 +265,186 @@ public class JiuFangService {
         // 酒坊内酒票数，根据规则分配这些酒票到对应游客
         int num = jiuFang.getNum();
         List<Map<String, Object>> scoreList = jiuFangYouKeLogMapper.queryScoreByJfId(jfId);
-        /**
-         * 游戏规则，酒票怎么分
-         */
+        if (CollectionUtils.isEmpty(scoreList)) {
+            throw new ServiceException(500, "酒坊空空没有游客");
+        }
+        Map<String, Object> map = scoreList.get(0);
+        // 判断游戏是否开始
+        if (0 == MapUtils.getIntValue(map, "ord")) {
+            throw new ServiceException(500, "游戏未开始");
+        }
+        if (tp == 1) {
+            // 筛子游戏三局
+            if (3 == MapUtils.getIntValue(map, "ord")) {
+                // 计算分数
+                calcScore(scoreList, jiuFang);
+            } else if (2 == MapUtils.getIntValue(map, "ord")) {
+                // 返回排行榜
+                return Result.success(scoreList);
+            } else {
+                // 返回排行榜
+                return Result.success(scoreList);
+            }
+        } else {
+            // 病毒大作战游戏局
+            if (1 != MapUtils.getIntValue(map, "ord")) {
+                throw new ServiceException(500, "游戏未结束");
+            }
+        }
+
+
         /**
          * 记录每个游客玩游戏的酒票输赢记录  yx_log
          */
         return Result.success(scoreList);
     }
 
+    private void calcScore(List<Map<String, Object>> scoreList, JiuFang jiuFang) {
+        // 创建酒坊者：1:供应商；2:游客
+        int tp = jiuFang.getTp();
+        // 1:筛子;2:病毒大作战
+        int yxTp = jiuFang.getYxTp();
+        // 酒坊内酒票数，根据规则分配这些酒票到对应游客
+        int num = jiuFang.getNum();
+        Map<String, Object> map;
+        /**
+         * 游戏规则，酒票怎么分
+         * 1、酒票数 按 631 分为三份，向下取整，多余酒票单独保存
+         */
+        int one = num * 6 / 10;
+        int two = num * 3 / 10;
+        int three = num * 1 / 10;
+        int syNum = num - one - two - three;
+        // 至少两个游客
+        if (scoreList.size() == 1) {
+
+        } else if (scoreList.size() == 2) {
+            // 两个游客赢者通吃
+            for (int i = 0; i < scoreList.size(); i++) {
+                map = scoreList.get(i);
+                map.put("jpNum", 0);
+                if (i == 0) {
+                    map.put("jpNum", num);
+                    // 更新游客票数及战绩
+                    updateScoreByYoukeOpenid(map, num, yxTp);
+                } else {
+                    // 经销商开的房间游客不可能输，所以不需要更新战绩
+                    // 只有游客开的房间，游客才可能输，需要更新战绩
+                    if (tp == 2) {
+                        // 更新战绩
+                        updateZjByYoukeOpenid(map, -1, yxTp);
+                    }
+                }
+            }
+        } else if (scoreList.size() == 3) {
+            // 三个游客赢者，第一名吃掉剩余票
+            for (int i = 0; i < scoreList.size(); i++) {
+                map = scoreList.get(i);
+                map.put("jpNum", 0);
+                if (i == 0) {
+                    map.put("jpNum", one + syNum);
+                    // 更新游客票数及战绩
+                    updateScoreByYoukeOpenid(map, one + syNum, yxTp);
+                } else if (i == 1) {
+                    map.put("jpNum", two);
+                    // 更新游客票数及战绩
+                    updateScoreByYoukeOpenid(map, two, yxTp);
+                } else if (i == 2) {
+                    map.put("jpNum", three);
+                    // 更新游客票数及战绩
+                    updateScoreByYoukeOpenid(map, three, yxTp);
+                } else {
+                    // 经销商开的房间游客不可能输，所以不需要更新战绩
+                    // 只有游客开的房间，游客才可能输，需要更新战绩
+                    if (tp == 2) {
+                        // 更新战绩
+                        updateZjByYoukeOpenid(map, -1, yxTp);
+                    }
+                }
+            }
+        } else {
+            // 大于三个游客 631比例分，第一名吃掉剩余票
+            for (int i = 0; i < scoreList.size(); i++) {
+                map = scoreList.get(i);
+                map.put("jpNum", 0);
+                if (i == 0) {
+                    map.put("jpNum", one + syNum);
+                    // 更新游客票数及战绩
+                    updateScoreByYoukeOpenid(map, one + syNum, yxTp);
+                } else if (i == 1) {
+                    map.put("jpNum", two);
+                    // 更新游客票数及战绩
+                    updateScoreByYoukeOpenid(map, two, yxTp);
+                } else if (i == 2) {
+                    map.put("jpNum", three);
+                    // 更新游客票数及战绩
+                    updateScoreByYoukeOpenid(map, three, yxTp);
+                } else {
+                    // 经销商开的房间游客不可能输，所以不需要更新战绩
+                    // 只有游客开的房间，游客才可能输，需要更新战绩
+                    if (tp == 2) {
+                        // 更新战绩
+                        updateZjByYoukeOpenid(map, -1, yxTp);
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * 更新游客酒票及战绩
+     *
+     * @param map
+     * @param num
+     * @param yxTp // 1:筛子;2:病毒大作战
+     */
+    private void updateScoreByYoukeOpenid(Map<String, Object> map, int num, int yxTp) {
+        String openid = MapUtils.getString(map, "openid");
+        YouKe youKe = new YouKe();
+        youKe.setOpenid(openid);
+        youKe = youKeMapper.selectOne(youKe);
+        if (youKe != null) {
+            youKe.setJpNum(youKe.getJpNum() + num);
+            // 更新游客赢得酒票
+            youKeMapper.updateByPrimaryKey(youKe);
+            // 更新游客战绩
+            YxSuccess yxSuccess = new YxSuccess();
+            yxSuccess.setYkOpenid(openid);
+            yxSuccess.setYxTp(yxTp);
+            yxSuccess = yxSuccessMapper.selectOne(yxSuccess);
+            if (yxSuccess != null) {
+                yxSuccess.setNum(yxSuccess.getNum() + num);
+                yxSuccessMapper.updateByPrimaryKey(yxSuccess);
+            }
+        }
+    }
+
+    /**
+     * 仅更新战绩
+     *
+     * @param map
+     * @param num
+     * @param yxTp // 1:筛子;2:病毒大作战
+     */
+    private void updateZjByYoukeOpenid(Map<String, Object> map, int num, int yxTp) {
+        String openid = MapUtils.getString(map, "openid");
+        // 更新游客战绩
+        YxSuccess yxSuccess = new YxSuccess();
+        yxSuccess.setYkOpenid(openid);
+        yxSuccess.setYxTp(yxTp);
+        yxSuccess = yxSuccessMapper.selectOne(yxSuccess);
+        if (yxSuccess != null) {
+            yxSuccess.setNum(yxSuccess.getNum() + num);
+            yxSuccessMapper.updateByPrimaryKey(yxSuccess);
+        }
+    }
+
 
     /**
      * 分享接口
-     * @param shareOpenid   分享者，如果分享者是游客，则分享者增加最多两张票
-     * @param openid        游客
+     *
+     * @param shareOpenid 分享者，如果分享者是游客，则分享者增加最多两张票
+     * @param openid      游客
      * @return
      */
     public Result share(String shareOpenid, String openid) {
