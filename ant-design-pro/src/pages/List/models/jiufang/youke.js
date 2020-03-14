@@ -1,5 +1,5 @@
 
-import { list, add, remove, update, queryById } from '@/services/jiufang/youke';
+import { list, add, remove, update, queryById, fetchYkSuccessById } from '@/services/jiufang/youke';
 import {
   message,
 } from 'antd';
@@ -13,7 +13,7 @@ export default {
       pagination: {},
     },
     fetchByIdData:{},
-    redisGroupData:[],
+    ykSuccessData:[],
     redisIpData:[],
   },
 
@@ -30,6 +30,16 @@ export default {
             pageSize: response.data.pageSize,
             current: response.data.current
           } : {}
+        },
+      });
+    },
+    *fetchYkSuccessDataById({ payload }, { call, put }) {
+      const response = yield call(fetchYkSuccessById, payload);
+      let { data } = response;
+      yield put({
+        type: 'ykSuccess',
+        payload: {
+          data: data ? response.data : [],
         },
       });
     },
@@ -118,6 +128,12 @@ export default {
       return {
         ...state,
         fetchByIdData: action.payload.data,
+      };
+    },
+    ykSuccess(state, action) {
+      return {
+        ...state,
+        ykSuccessData: action.payload.data,
       };
     },
     redisGroupData(state, action) {

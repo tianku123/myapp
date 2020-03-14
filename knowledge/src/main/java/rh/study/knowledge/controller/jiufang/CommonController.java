@@ -166,6 +166,7 @@ public class CommonController {
                             map.put("nickName", youKe.getNickName());
                             map.put("avatarUrl", youKe.getAvatarUrl());
                             map.put("gender", youKe.getGender());
+                            map.put("freeNum", youKe.getFreeNum());
                         }
                     } else {
                         map.put("isOwner", true);

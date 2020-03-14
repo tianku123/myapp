@@ -50,12 +50,20 @@ class FangZhuList extends PureComponent {
       dataIndex: 'name',
     },
     {
+      title: '微信标识',
+      dataIndex: 'openid',
+    },
+    {
       title: '手机号码',
       dataIndex: 'phone',
     },
     {
       title: '酒票数',
       dataIndex: 'num',
+    },
+    {
+      title: '已发酒票数',
+      dataIndex: 'fcNum',
     },
     {
       title: '状态',
@@ -78,12 +86,12 @@ class FangZhuList extends PureComponent {
       title: '性别',
       dataIndex: 'gender',
       render: val => {
-        if (val == null) {
-          return ""
+        if (val == 2) {
+          return <span style={{color: 'black'}}>女</span>
         } else if (val == 1) {
           return <span style={{color: 'black'}}>男</span>
         } else {
-          return <span style={{color: 'black'}}>女</span>
+          return '未设置'
         }
       },
     },

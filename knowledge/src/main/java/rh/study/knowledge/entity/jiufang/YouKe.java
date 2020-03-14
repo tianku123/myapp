@@ -40,7 +40,9 @@ public class YouKe {
     // 收货地址
     private String address;
     // 收货手机号码
-    private String sh_phone;
+    private String shPhone;
+    // 收货人
+    private String shName;
     // 已完游戏次数
     private Integer yxNum;
     // 赢取酒票数

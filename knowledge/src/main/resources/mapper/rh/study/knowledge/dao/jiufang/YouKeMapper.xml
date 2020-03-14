@@ -7,12 +7,18 @@
         SELECT
         id,
         openid,
+        unionid,
         nick_name as nickName,
         avatar_url as avatarUrl,
         province,
         city,
         gender,
         phone,
+        address,
+        sh_phone as shPhone,
+        yx_num as yxNum,
+        jp_num as jpNum,
+        free_num as freeNum,
         create_time as createTime,
         update_time as updateTime
         FROM youke

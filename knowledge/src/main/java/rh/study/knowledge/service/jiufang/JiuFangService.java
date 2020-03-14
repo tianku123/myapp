@@ -42,6 +42,7 @@ public class JiuFangService {
     public Result save(JiuFang jiuFang) {
         FangZhu fz = new FangZhu();
         fz.setOpenid(jiuFang.getOpenid());
+        fz.setStat(2);
         fz = fangZhuMapper.selectOne(fz);
         YouKe yk = new YouKe();
         yk.setOpenid(jiuFang.getOpenid());
@@ -67,27 +68,27 @@ public class JiuFangService {
         }
         int i = jiuFangMapper.insertSelective(jiuFang);
         if (i > 0) {
-            if (fz != null) {// 减去经销商剩余酒票
-                // 增加已发出酒票数
-                fz.setFcNum(fz.getFcNum() + jiuFang.getNum());
-                fangZhuMapper.updateByPrimaryKey(fz);
-            } else if (yk != null) {// 减去游客剩余酒票
-                // 游客减少酒票
-                yk.setJpNum(yk.getJpNum() - jiuFang.getNum());
-                youKeMapper.updateByPrimaryKey(yk);
-                /**
-                 * 游客需要进入游客列表，参与游戏分酒票
-                 */
-                JiuFangYouKeLog jiuFangYouKeLog = new JiuFangYouKeLog();
-                jiuFangYouKeLog.setJfId(jiuFang.getId());
-                jiuFangYouKeLog.setOpenid(yk.getOpenid());
-                // 1:经销商；2:游客
-                jiuFangYouKeLog.setJfTp(jiuFang.getTp());
-                // 1:筛子;2:病毒大作战
-                jiuFangYouKeLog.setYxTp(jiuFang.getYxTp());
-                jiuFangYouKeLog.setCreateTime(new Date());
-                jiuFangYouKeLogMapper.insertSelective(jiuFangYouKeLog);
-            }
+//            if (fz != null) {// 减去经销商剩余酒票
+//                // 增加已发出酒票数
+//                fz.setFcNum(fz.getFcNum() + jiuFang.getNum());
+//                fangZhuMapper.updateByPrimaryKey(fz);
+//            } else if (yk != null) {// 减去游客剩余酒票
+//                // 游客减少酒票
+//                yk.setJpNum(yk.getJpNum() - jiuFang.getNum());
+//                youKeMapper.updateByPrimaryKey(yk);
+//                /**
+//                 * 游客需要进入游客列表，参与游戏分酒票
+//                 */
+//                JiuFangYouKeLog jiuFangYouKeLog = new JiuFangYouKeLog();
+//                jiuFangYouKeLog.setJfId(jiuFang.getId());
+//                jiuFangYouKeLog.setOpenid(yk.getOpenid());
+//                // 1:经销商；2:游客
+//                jiuFangYouKeLog.setJfTp(jiuFang.getTp());
+//                // 1:筛子;2:病毒大作战
+//                jiuFangYouKeLog.setYxTp(jiuFang.getYxTp());
+//                jiuFangYouKeLog.setCreateTime(new Date());
+//                jiuFangYouKeLogMapper.insertSelective(jiuFangYouKeLog);
+//            }
             return Result.success(jiuFang.getId());
         } else {
             return Result.failure(500, "创建失败");
@@ -102,6 +103,9 @@ public class JiuFangService {
         JiuFang jiuFang = jiuFangMapper.selectByPrimaryKey(jiuFangYouKeLog.getJfId());
         if (jiuFang == null) {
             throw new ServiceException(500, "酒坊不存在");
+        }
+        if (jiuFang.getStat() != 0) {
+            throw new ServiceException(500, "游戏已开始，不能进入房间");
         }
         int perNum = jiuFang.getPerNum();
         if (perNum >= jfPerNum) {
@@ -125,13 +129,13 @@ public class JiuFangService {
         jiuFangYouKeLog.setCreateTime(new Date());
         int i = jiuFangYouKeLogMapper.insertSelective(jiuFangYouKeLog);
         if (i > 0) {
-            if (tp == 2) {
-                // 游客进入酒坊需要扣除一张酒票
-                yk.setJpNum(yk.getJpNum() - 1);
-                // 游戏次数加一
-                yk.setYxNum(yk.getYxNum() + 1);
-                youKeMapper.updateByPrimaryKey(yk);
-            }
+//            if (tp == 2) {
+//                // 游客进入酒坊需要扣除一张酒票
+//                yk.setJpNum(yk.getJpNum() - 1);
+//                // 游戏次数加一
+//                yk.setYxNum(yk.getYxNum() + 1);
+//                youKeMapper.updateByPrimaryKey(yk);
+//            }
             // 进入酒坊的人数加一
             jiuFang.setPerNum(perNum + 1);
             jiuFangMapper.updateByPrimaryKey(jiuFang);
@@ -158,10 +162,14 @@ public class JiuFangService {
         return Result.success(resMap);
     }
 
+    @Transactional
     public Result playGame(JiuFangYouKeLog jiuFangYouKeLog) {
         JiuFang jiuFang = jiuFangMapper.selectByPrimaryKey(jiuFangYouKeLog.getJfId());
         if (jiuFang == null) {
             throw new ServiceException(500, "酒坊不存在");
+        }
+        if (jiuFang.getStat() != 0) {
+            throw new ServiceException(500, "游戏已开始");
         }
         List<Map<String, Object>> ykList = jiuFangYouKeLogMapper.queryYoukeByJfId(jiuFangYouKeLog.getJfId());
         if (CollectionUtils.isEmpty(ykList)) {
@@ -178,11 +186,54 @@ public class JiuFangService {
 
         // 1：开始，2，结束
 //        int tp = jiuFangYouKeLog.getTp();
-        jiuFang = new JiuFang();
-        jiuFang.setId(jiuFangYouKeLog.getJfId());
+//        JiuFang jiuFang2 = new JiuFang();
+//        jiuFang2.setId(jiuFangYouKeLog.getJfId());
         jiuFang.setStat(jiuFangYouKeLog.getTp());
         int i = jiuFangMapper.updateByPrimaryKeySelective(jiuFang);
         if (i > 0) {
+            FangZhu fz = new FangZhu();
+            fz.setOpenid(jiuFang.getOpenid());
+            fz.setStat(2);
+            fz = fangZhuMapper.selectOne(fz);
+            YouKe yk = new YouKe();
+            yk.setOpenid(jiuFang.getOpenid());
+            yk = youKeMapper.selectOne(yk);
+            if (fz != null) {// 减去经销商剩余酒票
+                // 增加已发出酒票数
+                fz.setFcNum(fz.getFcNum() + jiuFang.getNum());
+                fangZhuMapper.updateByPrimaryKey(fz);
+            } else if (yk != null) {// 减去游客剩余酒票
+                // 游客减少酒票
+                yk.setJpNum(yk.getJpNum() - jiuFang.getNum());
+                youKeMapper.updateByPrimaryKey(yk);
+                /**
+                 * 游客需要进入游客列表，参与游戏分酒票
+                 */
+                JiuFangYouKeLog jiuFangYouKeLog2 = new JiuFangYouKeLog();
+                jiuFangYouKeLog2.setJfId(jiuFang.getId());
+                jiuFangYouKeLog2.setOpenid(yk.getOpenid());
+                // 1:经销商；2:游客
+                jiuFangYouKeLog2.setJfTp(jiuFang.getTp());
+                // 1:筛子;2:病毒大作战
+                jiuFangYouKeLog2.setYxTp(jiuFang.getYxTp());
+                jiuFangYouKeLog2.setCreateTime(new Date());
+                jiuFangYouKeLogMapper.insertSelective(jiuFangYouKeLog2);
+            }
+            for (Map<String, Object> map : ykList) {
+                String openid = MapUtils.getString(map, "openid");
+                YouKe youKe = new YouKe();
+                youKe.setOpenid(openid);
+                youKe = youKeMapper.selectOne(youKe);
+                /**
+                 * 如果是游客创建的房间，开始游戏后，减游客的酒票
+                 */
+                if (tp == 2) {
+                    youKe.setJpNum(youKe.getJpNum() - 1);
+                }
+                // 游戏次数加一
+                youKe.setYxNum(youKe.getYxNum() + 1);
+                youKeMapper.updateByPrimaryKey(youKe);
+            }
             return Result.success(jiuFang.getId());
         } else {
             throw new ServiceException(500, "开始游戏失败");
@@ -257,6 +308,7 @@ public class JiuFangService {
         return Result.success(result);
     }
 
+    @Transactional
     public Result getGameRank(Integer jfId) {
         JiuFang jiuFang = jiuFangMapper.selectByPrimaryKey(jfId);
         if (jiuFang == null) {
@@ -294,8 +346,9 @@ public class JiuFangService {
             }
         } else {
             // 病毒大作战游戏局
-            if (1 != MapUtils.getIntValue(map, "ord")) {
-                throw new ServiceException(500, "游戏未结束");
+            if (1 == MapUtils.getIntValue(map, "ord")) {
+                // 计算分数
+                calcScore(scoreList, jiuFang);
             }
         }
 
@@ -454,6 +507,7 @@ public class JiuFangService {
      * @param openid      游客
      * @return
      */
+    @Transactional
     public Result share(String shareOpenid, String openid) {
         YouKe shareYk = new YouKe();
         shareYk.setOpenid(shareOpenid);
@@ -502,6 +556,7 @@ public class JiuFangService {
                 map = new HashMap<>();
                 map.put("tp", ykSuccess.getYxTp());
                 map.put("jpNum", ykSuccess.getNum());
+                resList.add(map);
             }
         }
         return Result.success(resList);

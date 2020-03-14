@@ -17,6 +17,7 @@ import {
 } from 'antd';
 import StandardTable from '@/components/StandardTable';
 import PageHeaderWrapper from '@/components/PageHeaderWrapper';
+import YkSuccess from './ykSuccess';
 
 import styles from './youkeList.less';
 
@@ -37,7 +38,6 @@ const getValue = obj =>
 class YoukeList extends PureComponent {
   state = {
     modalVisible: false,
-    isSaveOrUpdate: true,
     selectedRows: [],
     formValues: {},
     id: null,
@@ -56,12 +56,12 @@ class YoukeList extends PureComponent {
       title: '性别',
       dataIndex: 'gender',
       render: val => {
-        if (val == null) {
-          return ""
+        if (val == 2) {
+          return <span style={{color: 'black'}}>女</span>
         } else if (val == 1) {
           return <span style={{color: 'black'}}>男</span>
         } else {
-          return <span style={{color: 'black'}}>女</span>
+          return '未设置'
         }
       },
     },
@@ -74,11 +74,38 @@ class YoukeList extends PureComponent {
       dataIndex: 'city',
     },
     {
+      title: '酒票',
+      dataIndex: 'jpNum',
+    },
+    {
+      title: '游戏次数',
+      dataIndex: 'yxNum',
+    },
+    {
       title: '创建时间',
       dataIndex: 'createTime',
       // sorter: true,
       render: val => {return val != null ? <span>{moment(val).format('YYYY-MM-DD HH:mm:ss')}</span> : ''},
-    }
+    },
+    {
+      title: '操作',
+      render: (text, record) => {
+        return record.stat == 0 ? null :
+          <Fragment>
+            <Popconfirm
+              title="确定删除吗?"
+              onConfirm={() => this.handleDelete(record)}
+              // onCancel={cancel}
+              okText="是"
+              cancelText="否"
+            >
+              <a href="#">删除</a>
+            </Popconfirm>
+            <Divider type="vertical" />
+            <a onClick={() => this.handleModalVisible(true, record)}>我的战绩</a>
+          </Fragment>
+      }
+    },
   ];
 
   componentDidMount() {
@@ -180,48 +207,44 @@ class YoukeList extends PureComponent {
     });
   };
 
-  handleModalVisible = (flag, isSaveOrUpdate, fields) => {
+  handleModalVisible = (flag, fields) => {
     const { dispatch } = this.props;
-    // dispatch({
-    //   type: 'youke/redisGroup',
-    //   payload: {
-    //   },
-    // });
-    if (!isSaveOrUpdate && !!fields) {// 编辑
+    
+    if (!!fields) {// 我的战绩
       dispatch({
-        type: 'youke/fetchById',
+        type: 'youke/fetchYkSuccessDataById',
         payload: {
-          id: fields.id,
+          openid: fields.openid,
         },
       });
     }
     
     this.setState({
-      id: fields ? fields.id : null,
+      id: fields ? fields.openid : null,
       modalVisible: !!flag,
-      isSaveOrUpdate: isSaveOrUpdate,
     });
   };
 
   handleAdd = (fields) => {
-    const { dispatch } = this.props;
-    dispatch({
-      type: this.state.isSaveOrUpdate ? 'youke/add' : 'youke/update',
-      payload: {
-        id: this.state.id,
-        name: fields.name,
-        num: fields.num,
-        phone: fields.phone,
-      },
-    }).then(data => {
-      dispatch({
-        type: 'youke/list',
-        payload: this.state.formValues,
-      });
-    });
+    // const { dispatch } = this.props;
+    // dispatch({
+    //   type: this.state.isSaveOrUpdate ? 'youke/add' : 'youke/update',
+    //   payload: {
+    //     id: this.state.id,
+    //     name: fields.name,
+    //     num: fields.num,
+    //     phone: fields.phone,
+    //   },
+    // }).then(data => {
+    //   dispatch({
+    //     type: 'youke/list',
+    //     payload: this.state.formValues,
+    //   });
+    // });
 
     this.handleModalVisible();
   };
+
 
   handleDelete = fields => {
     const { dispatch } = this.props;
@@ -270,10 +293,10 @@ class YoukeList extends PureComponent {
 
   render() {
     const {
-      youke: { data, fetchByIdData },
+      youke: { data, ykSuccessData },
       loading,
     } = this.props;
-    const { selectedRows, modalVisible, isSaveOrUpdate, id } = this.state;
+    const { selectedRows, modalVisible, id } = this.state;
     const menu = (
       <Menu onClick={this.handleMenuClick} selectedKeys={[]}>
         <Menu.Item key="remove">删除</Menu.Item>
@@ -303,6 +326,12 @@ class YoukeList extends PureComponent {
             />
           </div>
         </Card>
+        <YkSuccess 
+          {...parentMethods} 
+          modalVisible={modalVisible} 
+          id={id}
+          data={ykSuccessData}
+          />
       </PageHeaderWrapper>
     );
   }

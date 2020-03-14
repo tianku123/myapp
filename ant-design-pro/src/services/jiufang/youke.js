@@ -39,4 +39,8 @@ export async function queryById(params) {
   return request(`/api/wechat/yk/queryById?${stringify(params)}`);
 }
 
+export async function fetchYkSuccessById(params) {
+  return request(`/api/wechat/yk/fetchYkSuccessById?${stringify(params)}`);
+}
+
 

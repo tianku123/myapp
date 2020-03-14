@@ -7,7 +7,8 @@
         b.nick_name as "nickName",
         b.avatar_url as "avatarUrl",
         b.gender as "gender",
-        b.jp_num as "jpNum"
+        b.jp_num as "jpNum",
+        b.openid as "openid"
         from jf_yk_log as a left join youke as b on a.openid = b.openid
         where a.jf_id=#{jfId}
     </select>

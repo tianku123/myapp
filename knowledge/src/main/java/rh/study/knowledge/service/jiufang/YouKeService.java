@@ -44,8 +44,10 @@ public class YouKeService {
         return new PageResult(page.getTotal(), page.getPages(), list, page.getPageNum(), page.getPageSize());
     }
 
-    public YouKe queryRedisGroupById(Integer id) {
-        return youKeMapper.selectByPrimaryKey(id);
+    public List<YkSuccess> fetchYkSuccessById(String openid) {
+        YkSuccess yk = new YkSuccess();
+        yk.setYkOpenid(openid);
+        return ykSuccessMapper.select(yk);
     }
 
     public YouKe queryByOpenid(String openid) {
@@ -100,5 +102,30 @@ public class YouKeService {
         } else {
             return Result.failure(500, "修改失败");
         }
+    }
+
+    public Result delete(Integer id) {
+        int i = youKeMapper.deleteByPrimaryKey(id);
+        if (i > 0) {
+            return Result.success(i);
+        }
+        return Result.failure(500, "删除失败");
+    }
+
+    public Result addressInfo(YouKe yk) {
+        YouKe youk = new YouKe();
+        youk.setOpenid(yk.getOpenid());
+        youk = youKeMapper.selectOne(youk);
+        if (youk == null) {
+            return Result.failure(500, "游客不存在");
+        }
+        youk.setAddress(yk.getAddress());
+        youk.setShName(yk.getShName());
+        youk.setShPhone(yk.getShPhone());
+        int i = youKeMapper.updateByPrimaryKey(youk);
+        if (i > 0) {
+            return Result.success(i);
+        }
+        return Result.failure(500, "修改失败");
     }
 }
