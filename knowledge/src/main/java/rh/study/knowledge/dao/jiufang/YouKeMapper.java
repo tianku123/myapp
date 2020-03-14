@@ -17,5 +17,4 @@ public interface YouKeMapper extends BaseMapper<YouKe> {
 
     List<Map<String,Object>> list(Map<String, Object> params);
 
-    List<Map<String,Object>> jpRankPagable(Map<String, Object> params);
 }

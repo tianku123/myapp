@@ -70,7 +70,7 @@ public class JiuFangController {
     }
 
     /**
-     * 开始或结束游戏
+     * 开始游戏
      * @param jiuFangYouKeLog
      * @return
      */
@@ -82,7 +82,7 @@ public class JiuFangController {
             throw new ServiceException(400, "jfId必传");
         }
         // 1：开始，2，结束
-        if (jiuFangYouKeLog.getTp() == null || (jiuFangYouKeLog.getTp().intValue() != 1 && jiuFangYouKeLog.getTp().intValue() != 2)) {
+        if (jiuFangYouKeLog.getTp() == null || (jiuFangYouKeLog.getTp().intValue() != 1)) {
             throw new ServiceException(400, "tp参数错误");
         }
         return jiuFangService.playGame(jiuFangYouKeLog);

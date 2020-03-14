@@ -23,34 +23,36 @@ export default [
       {
         path: '/dashboard',
         name: 'fangzhu',
-        icon: 'dashboard',
+        icon: 'user',
         routes: [
           {
             path: '/dashboard/fangzhu',
             name: 'fangzhu',
             component: './List/fangzhu/FangZhuList',
           },
-          // {
-          //   path: '/dashboard/jprank',
-          //   name: 'jprank',
-          //   component: './List/rank/JpRankList',
-          // },
-          // {
-          //   path: '/dashboard/ykrank',
-          //   name: 'ykrank',
-          //   component: './List/fangzhu/FangZhuList',
-          // },
         ],
       },
       {
         path: '/youke',
         name: 'youke',
-        icon: 'dashboard',
+        icon: 'table',
         routes: [
           {
             path: '/youke/youke',
             name: 'youke',
             component: './List/youke/YoukeList',
+          },
+        ],
+      },
+      {
+        path: '/config',
+        name: 'config',
+        icon: 'setting',
+        routes: [
+          {
+            path: '/config/jp',
+            name: 'jp',
+            component: './List/config/jpList',
           },
         ],
       },

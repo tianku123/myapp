@@ -73,6 +73,7 @@ public class CommonController {
             yk.setProvince(fangZhu.getProvince());
             yk.setCity(fangZhu.getCity());
             yk.setAvatarUrl(fangZhu.getAvatarUrl());
+            yk.setGender(fangZhu.getGender());
             return youKeService.auth(yk);
         }
     }

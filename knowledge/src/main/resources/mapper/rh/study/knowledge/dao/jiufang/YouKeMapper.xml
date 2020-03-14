@@ -11,6 +11,7 @@
         avatar_url as avatarUrl,
         province,
         city,
+        gender,
         phone,
         create_time as createTime,
         update_time as updateTime
@@ -23,21 +24,4 @@
         order by id DESC
     </select>
 
-    <select id="jpRankPagable" resultType="map">
-        SELECT
-        a.id,
-        a.openid,
-        a.nick_name as nickName,
-        a.avatar_url as avatarUrl,
-        a.province,
-        a.city,
-        b.jp_num
-        FROM youke as a LEFT JOIN fz_yk_rel as b ON a.id = b.yk_id
-        <where>
-            <if test="nickName != null and nickName !=''" >
-                AND b.fz_openid = #{fzOpenid}
-            </if>
-        </where>
-        order by b.jp_num DESC
-    </select>
 </mapper>

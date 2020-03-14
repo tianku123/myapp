@@ -189,6 +189,7 @@ public class JiuFangService {
         }
     }
 
+    @Transactional
     public Result saveGameScore(JiuFangYouKeLog jiuFangYouKeLog) {
         JiuFang jiuFang = jiuFangMapper.selectByPrimaryKey(jiuFangYouKeLog.getJfId());
         if (jiuFang == null) {
@@ -228,6 +229,9 @@ public class JiuFangService {
                 bean.setTotal(jiuFangYouKeLog.getScore() + bean.getOne() + bean.getTwo());
                 bean.setOrd(3);
                 result = jiuFangYouKeLogMapper.updateByPrimaryKey(bean);
+                // 结束游戏
+                jiuFang.setStat(2);
+                jiuFangMapper.updateByPrimaryKey(jiuFang);
             } else {
                 throw new ServiceException(500, "筛子游戏最多玩三局");
             }
@@ -238,6 +242,9 @@ public class JiuFangService {
                 bean.setTotal(jiuFangYouKeLog.getScore());
                 bean.setOrd(1);
                 result = jiuFangYouKeLogMapper.updateByPrimaryKey(bean);
+                // 结束游戏
+                jiuFang.setStat(2);
+                jiuFangMapper.updateByPrimaryKey(jiuFang);
             } else {
                 throw new ServiceException(500, "病毒游戏最多玩一局");
             }
