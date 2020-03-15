@@ -1,5 +1,5 @@
 
-import { list, add, remove, update, queryById, fetchYkSuccessById } from '@/services/jiufang/youke';
+import { list, add, remove, update, queryById, fetchYkSuccessById, fetchYkPrizeById } from '@/services/jiufang/youke';
 import {
   message,
 } from 'antd';
@@ -35,6 +35,16 @@ export default {
     },
     *fetchYkSuccessDataById({ payload }, { call, put }) {
       const response = yield call(fetchYkSuccessById, payload);
+      let { data } = response;
+      yield put({
+        type: 'ykSuccess',
+        payload: {
+          data: data ? response.data : [],
+        },
+      });
+    },
+    *fetchYkPrizeDataById({ payload }, { call, put }) {
+      const response = yield call(fetchYkPrizeById, payload);
       let { data } = response;
       yield put({
         type: 'ykSuccess',

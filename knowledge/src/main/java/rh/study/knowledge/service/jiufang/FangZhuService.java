@@ -77,32 +77,36 @@ public class FangZhuService {
 
     @Transactional
     public Result update(FangZhu fangZhu) {
-        FangZhu fz = fangZhuMapper.queryByPhone(fangZhu.getPhone());
+        int updateNum = fangZhu.getNum();
+        FangZhu fz = fangZhuMapper.selectByPrimaryKey(fangZhu.getId());
+        int oldNum = fz.getNum();
         if (fz == null) {
             return Result.failure(500, "经销商不存在");
         }
-        if (2 == fz.getStat().intValue()) {
-            return Result.failure(500, "经销商已认证");
-        }
+//        if (2 == fz.getStat().intValue()) {
+//            return Result.failure(500, "经销商已认证");
+//        }
         if (fangZhu.getNum() < fz.getFcNum()) {
             return Result.failure(500, "已发出" + fz.getFcNum() + "张酒票");
         }
-        fz.setOpenid(fangZhu.getOpenid());
-        fz.setNickName(fangZhu.getNickName());
-        fz.setAvatarUrl(fangZhu.getAvatarUrl());
-        fz.setGender(fangZhu.getGender());
-        fz.setProvince(fangZhu.getProvince());
-        fz.setCity(fangZhu.getCity());
-        fz.setUpdateTime(new Date());
-        // 状态：0删除，1创建状态，2微信认证过
-        fz.setStat(2);
+//        fz.setOpenid(fangZhu.getOpenid());
+//        fz.setNickName(fangZhu.getNickName());
+//        fz.setAvatarUrl(fangZhu.getAvatarUrl());
+//        fz.setGender(fangZhu.getGender());
+//        fz.setProvince(fangZhu.getProvince());
+//        fz.setCity(fangZhu.getCity());
+//        fz.setUpdateTime(new Date());
+//        // 状态：0删除，1创建状态，2微信认证过
+//        fz.setStat(2);
+        fz.setNum(fangZhu.getNum());
+        fz.setName(fangZhu.getName());
         int i = fangZhuMapper.updateByPrimaryKeySelective(fz);
         if (i > 0) {
             // 减少总酒票数
-            if (fangZhu.getNum() > fz.getFcNum()) {
+//            if (fangZhu.getNum() > fz.getNum()) {
                 // 增加酒票 或 减少酒票，修改总票数
-                jpConfigService.addJpNum(fangZhu.getNum() - fz.getNum());
-            }
+                jpConfigService.addJpNum(updateNum - oldNum);
+//            }
             return Result.success(i);
         } else {
             return Result.failure(500, "修改失败");

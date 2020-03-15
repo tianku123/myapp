@@ -8,6 +8,7 @@ import org.springframework.transaction.annotation.Transactional;
 import rh.study.knowledge.common.result.PageResult;
 import rh.study.knowledge.common.result.Result;
 import rh.study.knowledge.dao.jiufang.*;
+import rh.study.knowledge.entity.jiufang.YkPrizeLog;
 import rh.study.knowledge.entity.jiufang.YouKe;
 import rh.study.knowledge.entity.jiufang.YkSuccess;
 
@@ -37,6 +38,9 @@ public class YouKeService {
     @Autowired
     private YkSuccessMapper ykSuccessMapper;
 
+    @Autowired
+    private YkPrizeLogMapper ykPrizeLogMapper;
+
     public PageResult listPagable(int current, int pageSize, Map<String, Object> params) {
         //分页查询，包括分页和总数查询，第三个参数是控制是否计算总数，默认是true,true为查询总数，分页效果只对其后的第一个查询有效。
         Page page = PageHelper.startPage(current, pageSize);
@@ -48,6 +52,12 @@ public class YouKeService {
         YkSuccess yk = new YkSuccess();
         yk.setYkOpenid(openid);
         return ykSuccessMapper.select(yk);
+    }
+
+    public List<YkPrizeLog> fetchYkPrizeById(String openid) {
+        YkPrizeLog yk = new YkPrizeLog();
+        yk.setYkOpenid(openid);
+        return ykPrizeLogMapper.select(yk);
     }
 
     public YouKe queryByOpenid(String openid) {
@@ -111,8 +121,16 @@ public class YouKeService {
     }
 
     public Result delete(Integer id) {
+        YouKe youk = youKeMapper.selectByPrimaryKey(id);
+        if (youk == null) {
+            return Result.failure(500, "游客不存在");
+        }
         int i = youKeMapper.deleteByPrimaryKey(id);
         if (i > 0) {
+            // 删除我的战绩
+            YkSuccess ykSuccess = new YkSuccess();
+            ykSuccess.setYkOpenid(youk.getOpenid());
+            ykSuccessMapper.delete(ykSuccess);
             return Result.success(i);
         }
         return Result.failure(500, "删除失败");

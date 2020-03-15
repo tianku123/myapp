@@ -71,18 +71,18 @@ class FangZhuForm extends PureComponent {
     return (
       <Modal
         destroyOnClose
-        title={isSaveOrUpdate ? "新建坊主" : "编辑坊主"}
+        title={isSaveOrUpdate ? "新建经销商" : "编辑经销商"}
         visible={modalVisible}
         onOk={this.okHandle}
         onCancel={() => handleModalVisible(false, true)}
       >
-        <FormItem labelCol={{ span: 5 }} wrapperCol={{ span: 15 }} label="酒坊名称">
+        <FormItem labelCol={{ span: 5 }} wrapperCol={{ span: 15 }} label="名称">
           {form.getFieldDecorator('name', {
             initialValue: nameVal,
             rules: [{
-              required: true, message: '请输入酒坊名称！',
+              required: true, message: '请输入名称！',
             }],
-          })(<Input placeholder="请输入酒坊名称！" />)}
+          })(<Input placeholder="请输入名称！" />)}
         </FormItem>
         {isSaveOrUpdate ?
         <FormItem labelCol={{ span: 5 }} wrapperCol={{ span: 15 }} label="手机号码">

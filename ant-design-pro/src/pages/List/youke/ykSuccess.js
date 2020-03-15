@@ -58,9 +58,10 @@ class YkSuccess extends PureComponent {
   };
 
   render() {
-    const { modalVisible, form, handleModalVisible, data } = this.props;
+    const { modalVisible, form, handleModalVisible, data, tp } = this.props;
    
-    const columns = [
+    //tp 1:我的战绩，2：我的奖品
+    let columns = [
       {
         title: '游戏',
         dataIndex: 'yxTp',
@@ -79,11 +80,40 @@ class YkSuccess extends PureComponent {
         dataIndex: 'num',
       },
     ];
+    if (tp == 2) {
+      columns = [
+        {
+          title: '奖品',
+          dataIndex: 'prizeConfigId',
+          render: val => {
+            if (val == null) {
+              return ""
+            } else if (val == 1) {
+              return <span style={{color: 'black'}}>杯子</span>
+            } else if (val == 2) {
+              return <span style={{color: 'black'}}>抱枕</span>
+            } else if (val == 3) {
+              return <span style={{color: 'black'}}>小酒礼盒</span>
+            }
+          },
+        },
+        {
+          title: '个数',
+          dataIndex: 'num',
+        },
+        {
+          title: '兑奖时间',
+          dataIndex: 'createTime',
+          // sorter: true,
+          render: val => {return val != null ? <span>{moment(val).format('YYYY-MM-DD HH:mm:ss')}</span> : ''},
+        },
+      ];
+    }
     
     return (
       <Modal
         destroyOnClose
-        title={"我的战绩"}
+        title={tp == 1 ? "我的战绩" : "我的奖品"}
         visible={modalVisible}
         onOk={this.okHandle}
         onCancel={() => handleModalVisible(false)}

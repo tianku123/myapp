@@ -38,9 +38,11 @@ const getValue = obj =>
 class YoukeList extends PureComponent {
   state = {
     modalVisible: false,
+    modalVisible2: false,
     selectedRows: [],
     formValues: {},
     id: null,
+    tp: 1,//1:我的战绩，2：我的奖品
   };
 
   columns = [
@@ -116,8 +118,8 @@ class YoukeList extends PureComponent {
             </Popconfirm>
             <Divider type="vertical" />
             <a onClick={() => this.handleModalVisible(true, record)}>战绩</a>
-            {/* <Divider type="vertical" />
-            <a onClick={() => this.handleModalVisible(true, record)}>奖品</a> */}
+            <Divider type="vertical" />
+            <a onClick={() => this.handleModalVisible2(true, record)}>奖品</a>
           </Fragment>
       }
     },
@@ -237,6 +239,26 @@ class YoukeList extends PureComponent {
     this.setState({
       id: fields ? fields.openid : null,
       modalVisible: !!flag,
+      tp: 1,//1:我的战绩，2：我的奖品
+    });
+  };
+
+  handleModalVisible2 = (flag, fields) => {
+    const { dispatch } = this.props;
+    
+    if (!!fields) {// 我的奖品
+      dispatch({
+        type: 'youke/fetchYkPrizeDataById',
+        payload: {
+          openid: fields.openid,
+        },
+      });
+    }
+    
+    this.setState({
+      id: fields ? fields.openid : null,
+      modalVisible: !!flag,
+      tp: 2,//1:我的战绩，2：我的奖品
     });
   };
 
@@ -311,7 +333,7 @@ class YoukeList extends PureComponent {
       youke: { data, ykSuccessData },
       loading,
     } = this.props;
-    const { selectedRows, modalVisible, id } = this.state;
+    const { selectedRows, modalVisible, id, tp } = this.state;
     const menu = (
       <Menu onClick={this.handleMenuClick} selectedKeys={[]}>
         <Menu.Item key="remove">删除</Menu.Item>
@@ -346,6 +368,7 @@ class YoukeList extends PureComponent {
           modalVisible={modalVisible} 
           id={id}
           data={ykSuccessData}
+          tp={tp}
           />
       </PageHeaderWrapper>
     );

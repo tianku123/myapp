@@ -470,9 +470,9 @@ public class JiuFangService {
                 map = scoreList.get(i);
                 map.put("jpNum", 0);
                 if (i == 0) {
-                    map.put("jpNum", num + syNum);
+                    map.put("jpNum", num);
                     // 更新游客票数及战绩
-                    updateScoreByYoukeOpenid(map, num + syNum, yxTp);
+                    updateScoreByYoukeOpenid(map, num, yxTp);
                 } else {
                     // 经销商开的房间游客不可能输，所以不需要更新战绩
                     // 只有游客开的房间，游客才可能输，需要更新战绩

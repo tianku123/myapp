@@ -6,6 +6,7 @@ import rh.study.knowledge.common.result.PageResult;
 import rh.study.knowledge.common.result.Result;
 import rh.study.knowledge.common.result.ServiceException;
 import rh.study.knowledge.entity.jiufang.FangZhu;
+import rh.study.knowledge.entity.jiufang.YkPrizeLog;
 import rh.study.knowledge.entity.jiufang.YkSuccess;
 import rh.study.knowledge.entity.jiufang.YouKe;
 import rh.study.knowledge.service.jiufang.YouKeService;
@@ -41,6 +42,17 @@ public class YouKeController {
     @GetMapping(value = "fetchYkSuccessById")
     public Result fetchYkSuccessById(@RequestParam String openid) {
         List<YkSuccess> i = youKeService.fetchYkSuccessById(openid);
+        return Result.success(i);
+    }
+
+    /**
+     * 根据游客的openid获取兑奖记录
+     * @param openid
+     * @return
+     */
+    @GetMapping(value = "fetchYkPrizeById")
+    public Result fetchYkPrizeById(@RequestParam String openid) {
+        List<YkPrizeLog> i = youKeService.fetchYkPrizeById(openid);
         return Result.success(i);
     }
 

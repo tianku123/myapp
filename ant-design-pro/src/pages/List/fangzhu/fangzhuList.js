@@ -46,7 +46,7 @@ class FangZhuList extends PureComponent {
 
   columns = [
     {
-      title: '酒坊名称',
+      title: '名称',
       dataIndex: 'name',
     },
     {
