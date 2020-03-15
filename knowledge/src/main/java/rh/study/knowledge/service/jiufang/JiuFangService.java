@@ -4,6 +4,8 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -18,9 +20,14 @@ import java.util.*;
 @Service
 public class JiuFangService {
 
+    private Logger logger = LoggerFactory.getLogger(JiuFangService.class);
+
     // 进入酒坊的人数（不包括经销商）不超过多少人
     @Value("${jfPerNum}")
     private Integer jfPerNum;
+    // # 排行榜超时时间
+    @Value("${rankTimeOut}")
+    private Integer rankTimeOut;
 
     @Autowired
     private JiuFangMapper jiuFangMapper;
@@ -127,6 +134,16 @@ public class JiuFangService {
         if (yk.getJpNum() < 1) {
             throw new ServiceException(500, "游客没有酒票，不能进入酒坊");
         }
+        /**
+         * 判断是否已进入房间
+         */
+        JiuFangYouKeLog exL = new JiuFangYouKeLog();
+        exL.setJfId(jiuFangYouKeLog.getJfId());
+        exL.setOpenid(jiuFangYouKeLog.getOpenid());
+        exL = jiuFangYouKeLogMapper.selectOne(exL);
+        if (exL != null) {
+            throw new ServiceException(500, "游客已在酒坊中");
+        }
         // 1:经销商；2:游客
         jiuFangYouKeLog.setJfTp(jiuFang.getTp());
         // 1:筛子;2:病毒大作战
@@ -185,7 +202,7 @@ public class JiuFangService {
         if (tp == 1 && ykList.size() < 2) {// 经销商不算游戏人数
             throw new ServiceException(500, "必须邀请两人才可以开始游戏");
         }
-        if (tp == 2 && ykList.size() < 3) {// 游客创建房间创建者算游戏人数
+        if (tp == 2 && ykList.size() < 2) {// 游客创建房间创建者算游戏人数
             throw new ServiceException(500, "必须邀请两人才可以开始游戏");
         }
 
@@ -194,25 +211,29 @@ public class JiuFangService {
 //        JiuFang jiuFang2 = new JiuFang();
 //        jiuFang2.setId(jiuFangYouKeLog.getJfId());
         jiuFang.setStat(jiuFangYouKeLog.getTp());
-        int i = jiuFangMapper.updateByPrimaryKeySelective(jiuFang);
-        if (i > 0) {
-            FangZhu fz = new FangZhu();
-            fz.setOpenid(jiuFang.getOpenid());
-            fz.setStat(2);
-            fz = fangZhuMapper.selectOne(fz);
-            YouKe yk = new YouKe();
-            yk.setOpenid(jiuFang.getOpenid());
-            yk = youKeMapper.selectOne(yk);
-            if (fz != null) {// 减去经销商剩余酒票
-                // 增加已发出酒票数
-                fz.setFcNum(fz.getFcNum() + jiuFang.getNum());
-                fangZhuMapper.updateByPrimaryKey(fz);
-            } else if (yk != null) {// 减去游客剩余酒票
-                // 游客减少酒票
+
+        FangZhu fz = new FangZhu();
+        fz.setOpenid(jiuFang.getOpenid());
+        fz.setStat(2);
+        fz = fangZhuMapper.selectOne(fz);
+        YouKe yk = new YouKe();
+        yk.setOpenid(jiuFang.getOpenid());
+        yk = youKeMapper.selectOne(yk);
+        if (fz != null) {// 减去经销商剩余酒票
+            // 增加已发出酒票数
+            fz.setFcNum(fz.getFcNum() + jiuFang.getNum());
+            // 增加房间酒票数
+            jiuFang.setNum(jiuFang.getNum());
+            fangZhuMapper.updateByPrimaryKey(fz);
+        } else if (yk != null) {// 减去游客剩余酒票
+            // 游客减少酒票
 //                yk.setJpNum(yk.getJpNum() - jiuFang.getNum());
 //                youKeMapper.updateByPrimaryKey(yk);
-
-            }
+            jiuFang.setNum(ykList.size());
+        }
+        // 修改游戏状态，酒坊内酒票数
+        int i = jiuFangMapper.updateByPrimaryKeySelective(jiuFang);
+        if (i > 0) {
             for (Map<String, Object> map : ykList) {
                 String openid = MapUtils.getString(map, "openid");
                 YouKe youKe = new YouKe();
@@ -258,6 +279,8 @@ public class JiuFangService {
         // 只有筛子游戏是三局
         Integer ord = bean.getOrd();
         int result = 0;
+        // 更新时间
+        bean.setUpdateTime(new Date());
         if (yxTp == 1) {// 筛子游戏
             if (ord == null || ord < 1) {// 第一局游戏
                 bean.setOne(jiuFangYouKeLog.getScore());
@@ -275,8 +298,8 @@ public class JiuFangService {
                 bean.setOrd(3);
                 result = jiuFangYouKeLogMapper.updateByPrimaryKey(bean);
                 // 结束游戏
-                jiuFang.setStat(2);
-                jiuFangMapper.updateByPrimaryKey(jiuFang);
+//                jiuFang.setStat(2);
+//                jiuFangMapper.updateByPrimaryKey(jiuFang);
             } else {
                 throw new ServiceException(500, "筛子游戏最多玩三局");
             }
@@ -288,8 +311,8 @@ public class JiuFangService {
                 bean.setOrd(1);
                 result = jiuFangYouKeLogMapper.updateByPrimaryKey(bean);
                 // 结束游戏
-                jiuFang.setStat(2);
-                jiuFangMapper.updateByPrimaryKey(jiuFang);
+//                jiuFang.setStat(2);
+//                jiuFangMapper.updateByPrimaryKey(jiuFang);
             } else {
                 throw new ServiceException(500, "病毒游戏最多玩一局");
             }
@@ -303,7 +326,7 @@ public class JiuFangService {
     }
 
     @Transactional
-    public Result getGameRank(Integer jfId) {
+    public Result getGameRank(Integer jfId, Integer ord) {
         JiuFang jiuFang = jiuFangMapper.selectByPrimaryKey(jfId);
         if (jiuFang == null) {
             throw new ServiceException(500, "酒坊不存在");
@@ -342,34 +365,68 @@ public class JiuFangService {
         if (CollectionUtils.isEmpty(scoreList)) {
             throw new ServiceException(500, "酒坊空空没有游客");
         }
-        Map<String, Object> map = scoreList.get(0);
-        // 判断游戏是否开始
-        if (0 == MapUtils.getIntValue(map, "ord")) {
-            throw new ServiceException(500, "游戏未开始");
+        /**
+         * 判断ord是否一致，不一致则返回空数组，小程序继续请求
+         * 设置超时，如果规定时间内还是不一致则返回
+         */
+        long maxTime = System.currentTimeMillis();// 离最新时间的差
+        long nowTime = System.currentTimeMillis();
+        // 获取最大时间
+        for (Map<String, Object> map : scoreList) {
+            if (map.get("updateTime") != null) {
+                if (maxTime > (System.currentTimeMillis() - ((Date) map.get("updateTime")).getTime())) {
+                    maxTime = System.currentTimeMillis() - ((Date) map.get("updateTime")).getTime();
+                }
+            }
         }
-        if (tp == 1) {
+        // 四秒内都要检查游戏分数上报是否一致
+        logger.warn("maxTime:"+maxTime);
+        if (maxTime < rankTimeOut) {
+//        Map<String, Object> map = scoreList.get(0);
+//        int ord = MapUtils.getIntValue(map, "ord");
+            boolean flag = false;
+            for (Map<String, Object> mm : scoreList) {
+                if (ord != MapUtils.getIntValue(mm, "ord")) {
+                    flag = true;
+                }
+            }
+            if (flag) {
+                return Result.success(new ArrayList<>());
+            }
+        }
+        // 判断游戏是否开始
+//        if (0 == ord) {
+//            throw new ServiceException(500, "游戏未开始");
+//        }
+        if (yxTp == 1) {
             // 筛子游戏三局
-            if (3 == MapUtils.getIntValue(map, "ord")) {
+            if (3 == ord) {
                 // 计算分数
                 calcScore(scoreList, jiuFang);
+                // 结束游戏
+                jiuFang.setStat(2);
+                jiuFangMapper.updateByPrimaryKey(jiuFang);
                 // 记录排行榜
                 JiuFangRank jiuFangRank = new JiuFangRank();
                 jiuFangRank.setJfId(jiuFang.getId());
                 jiuFangRank.setRankJson(JSONArray.toJSONString(scoreList));
                 jiuFangRank.setCreateTime(new Date());
                 jiuFangRankMapper.insert(jiuFangRank);
-            } else if (2 == MapUtils.getIntValue(map, "ord")) {
+            } else if (2 == ord) {
                 // 返回排行榜
                 return Result.success(scoreList);
             } else {
                 // 返回排行榜
                 return Result.success(scoreList);
             }
-        } else {
+        } else if (yxTp == 2) {
             // 病毒大作战游戏局
-            if (1 == MapUtils.getIntValue(map, "ord")) {
+            if (1 == ord) {
                 // 计算分数
                 calcScore(scoreList, jiuFang);
+                // 结束游戏
+                jiuFang.setStat(2);
+                jiuFangMapper.updateByPrimaryKey(jiuFang);
                 // 记录排行榜
                 JiuFangRank jiuFangRank = new JiuFangRank();
                 jiuFangRank.setJfId(jiuFang.getId());
@@ -377,6 +434,8 @@ public class JiuFangService {
                 jiuFangRank.setCreateTime(new Date());
                 jiuFangRankMapper.insert(jiuFangRank);
             }
+        } else {
+            throw new ServiceException(500, "无此游戏");
         }
 
 
@@ -411,9 +470,9 @@ public class JiuFangService {
                 map = scoreList.get(i);
                 map.put("jpNum", 0);
                 if (i == 0) {
-                    map.put("jpNum", num);
+                    map.put("jpNum", num + syNum);
                     // 更新游客票数及战绩
-                    updateScoreByYoukeOpenid(map, num, yxTp);
+                    updateScoreByYoukeOpenid(map, num + syNum, yxTp);
                 } else {
                     // 经销商开的房间游客不可能输，所以不需要更新战绩
                     // 只有游客开的房间，游客才可能输，需要更新战绩

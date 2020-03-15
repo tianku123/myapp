@@ -15,6 +15,7 @@
         gender,
         phone,
         address,
+        sh_name as shName,
         sh_phone as shPhone,
         yx_num as yxNum,
         jp_num as jpNum,

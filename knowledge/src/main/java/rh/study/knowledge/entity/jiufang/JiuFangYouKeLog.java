@@ -42,6 +42,7 @@ public class JiuFangYouKeLog {
     private Integer total;
 
     private Date createTime;
+    private Date updateTime;
 
     @Transient
     private Integer tp;

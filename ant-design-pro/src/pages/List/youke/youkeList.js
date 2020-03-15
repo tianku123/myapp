@@ -82,6 +82,18 @@ class YoukeList extends PureComponent {
       dataIndex: 'yxNum',
     },
     {
+      title: '收货人',
+      dataIndex: 'shName',
+    },
+    {
+      title: '收货手机号',
+      dataIndex: 'shPhone',
+    },
+    {
+      title: '收货地址',
+      dataIndex: 'address',
+    },
+    {
       title: '创建时间',
       dataIndex: 'createTime',
       // sorter: true,
@@ -89,6 +101,7 @@ class YoukeList extends PureComponent {
     },
     {
       title: '操作',
+
       render: (text, record) => {
         return record.stat == 0 ? null :
           <Fragment>
@@ -102,7 +115,9 @@ class YoukeList extends PureComponent {
               <a href="#">删除</a>
             </Popconfirm>
             <Divider type="vertical" />
-            <a onClick={() => this.handleModalVisible(true, record)}>我的战绩</a>
+            <a onClick={() => this.handleModalVisible(true, record)}>战绩</a>
+            {/* <Divider type="vertical" />
+            <a onClick={() => this.handleModalVisible(true, record)}>奖品</a> */}
           </Fragment>
       }
     },

@@ -131,12 +131,16 @@ public class JiuFangController {
      */
     @GetMapping(value = "getGameRank")
     public Result getGameRank(
-            @RequestParam Integer jfId
+            @RequestParam Integer jfId,
+            @RequestParam Integer ord
     ) {
         if (jfId == null) {
             throw new ServiceException(400, "jfId必传");
         }
-        return jiuFangService.getGameRank(jfId);
+        if (ord == null || (ord != 1 && ord != 2 && ord != 3)) {
+            throw new ServiceException(400, "ord必传");
+        }
+        return jiuFangService.getGameRank(jfId, ord);
     }
 
     /**

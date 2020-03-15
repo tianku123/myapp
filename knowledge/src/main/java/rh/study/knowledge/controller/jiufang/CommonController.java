@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 import rh.study.knowledge.common.result.Result;
 import rh.study.knowledge.common.result.ServiceException;
 import rh.study.knowledge.entity.jiufang.FangZhu;
+import rh.study.knowledge.entity.jiufang.YkPrizeLog;
 import rh.study.knowledge.entity.jiufang.YouKe;
 import rh.study.knowledge.service.jiufang.FangZhuService;
 import rh.study.knowledge.service.jiufang.PrizeConfigService;
@@ -57,6 +58,18 @@ public class CommonController {
         return prizeConfigService.list();
     }
 
+    @PostMapping(value = "prizeLog")
+    public Result prizeLog(
+            @RequestBody YkPrizeLog ykPrizeLog
+    ) {
+        if (ykPrizeLog.getYkOpenid() == null) {
+            throw new ServiceException(400, "openid必传");
+        }
+        if (ykPrizeLog.getPrizeStr() == null) {
+            throw new ServiceException(400, "prizeStr必传");
+        }
+        return prizeConfigService.prizeLog(ykPrizeLog);
+    }
     @PostMapping(value = "auth")
     public Result auth(
             @RequestBody FangZhu fangZhu
