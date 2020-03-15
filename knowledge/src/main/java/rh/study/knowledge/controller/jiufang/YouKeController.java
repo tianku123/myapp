@@ -26,10 +26,12 @@ public class YouKeController {
     public Result list(
             @RequestParam(defaultValue = "1") int current,
             @RequestParam(defaultValue = "10") int pageSize,
-            @RequestParam(required = false) String nickName
+            @RequestParam(required = false) String nickName,
+            @RequestParam(required = false) Integer stat
     ) {
         Map<String, Object> params = new HashMap<>();
         params.put("nickName", nickName);
+        params.put("stat", stat);
         PageResult pageResult = youKeService.listPagable(current, pageSize, params);
         return Result.success(pageResult);
     }

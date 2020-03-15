@@ -27,6 +27,13 @@
             <if test="nickName != null and nickName !=''" >
                 AND nick_name LIKE concat('',#{nickName},'%')
             </if>
+
+            <if test="stat != null and stat == 2" >
+                AND sh_phone is not null
+            </if>
+            <if test="stat != null and stat == 3" >
+                AND sh_phone is null
+            </if>
         </where>
         order by id DESC
     </select>

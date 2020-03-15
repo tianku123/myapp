@@ -48,4 +48,4 @@ areaOpen: true
 #进入酒坊的人数（不包括经销商）不超过多少人
 jfPerNum: 10
 # 排行榜超时时间
-rankTimeOut: 300000
+rankTimeOut: 10000

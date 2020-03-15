@@ -29,4 +29,20 @@
         where a.jf_id=#{jfId}
         order by a.total DESC
     </select>
+    <select id="queryScoreByJfIdOrderByUpdateTimeDesc" resultType="map">
+        SELECT
+        a.one as "one",
+        a.two as "two",
+        a.three as "three",
+        a.total as "total",
+        a.ord as "ord",
+        a.update_time as "updateTime",
+        b.nick_name as "nickName",
+        b.avatar_url as "avatarUrl",
+        b.gender as "gender",
+        b.openid as "openid"
+        from jf_yk_log as a left join youke as b on a.openid = b.openid
+        where a.jf_id=#{jfId}
+        order by a.update_time DESC
+    </select>
 </mapper>

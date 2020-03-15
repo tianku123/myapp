@@ -313,6 +313,18 @@ class YoukeList extends PureComponent {
             </FormItem>
           </Col>
           <Col md={4} sm={12}>
+            <FormItem label="状态">
+            {getFieldDecorator('stat', {
+            })(
+              <Select style={{ width: '100%' }} showSearch={true} allowClear={true}
+              >
+                <Option key="1" value="1">全部</Option>
+                <Option key="2" value="2">中奖</Option>
+                <Option key="3" value="3">未中奖</Option>
+              </Select>)}
+            </FormItem>
+          </Col>
+          <Col md={4} sm={12}>
             <span className={styles.submitButtons}>
               <Button type="primary" htmlType="submit">
                 查询

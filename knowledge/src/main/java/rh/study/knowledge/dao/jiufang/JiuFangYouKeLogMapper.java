@@ -26,4 +26,5 @@ public interface JiuFangYouKeLogMapper extends BaseMapper<JiuFangYouKeLog> {
      * 查询酒坊内分数排行榜
      */
     List<Map<String,Object>> queryScoreByJfId(@Param(value = "jfId") Integer jfId);
+    List<Map<String,Object>> queryScoreByJfIdOrderByUpdateTimeDesc(@Param(value = "jfId") Integer jfId);
 }

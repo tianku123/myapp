@@ -31,23 +31,22 @@ public class FangZhuService {
         return new PageResult(page.getTotal(), page.getPages(), list, page.getPageNum(), page.getPageSize());
     }
 
+    @Transactional
     public Result save(FangZhu fangZhu) {
-        try {
-            FangZhu phone = fangZhuMapper.queryByPhone(fangZhu.getPhone());
-            if (phone == null) {
-                int i = fangZhuMapper.insertSelective(fangZhu);
-                if (i > 0) {
-                    // 减少总酒票数
-                    jpConfigService.addJpNum(fangZhu.getNum());
-                    return Result.success(i);
-                } else {
-                    return Result.failure(500, "创建失败");
-                }
+        // 判断总票数剩余是否够发
+        jpConfigService.checkJpNum(fangZhu.getNum());
+        FangZhu phone = fangZhuMapper.queryByPhone(fangZhu.getPhone());
+        if (phone == null) {
+            int i = fangZhuMapper.insertSelective(fangZhu);
+            if (i > 0) {
+                // 减少总酒票数
+                jpConfigService.addJpNum(fangZhu.getNum());
+                return Result.success(i);
             } else {
-                return Result.failure(500, "手机号码已存在！");
+                return Result.failure(500, "创建失败");
             }
-        } catch (Exception e) {
-            return Result.failure(500, "创建失败");
+        } else {
+            return Result.failure(500, "手机号码已存在！");
         }
     }
 
@@ -56,21 +55,18 @@ public class FangZhuService {
         return fangZhuMapper.selectByPrimaryKey(id);
     }
 
+    @Transactional
     public Result delete(Integer id) {
-        try {
-            FangZhu fz = fangZhuMapper.selectByPrimaryKey(id);
-            // 状态：0删除，1创建状态，2微信认证过
-            fz.setStat(0);
-            fz.setUpdateTime(new Date());
-            int i = fangZhuMapper.updateByPrimaryKeySelective(fz);
-            if (i > 0) {
-                // 删除，回退总票数
-                jpConfigService.addJpNum(fz.getFcNum() - fz.getNum());
-                return Result.success(i);
-            } else {
-                return Result.failure(500, "删除失败");
-            }
-        } catch (Exception e) {
+        FangZhu fz = fangZhuMapper.selectByPrimaryKey(id);
+        // 状态：0删除，1创建状态，2微信认证过
+        fz.setStat(0);
+        fz.setUpdateTime(new Date());
+        int i = fangZhuMapper.updateByPrimaryKeySelective(fz);
+        if (i > 0) {
+            // 删除，回退总票数
+            jpConfigService.addJpNum(fz.getFcNum() - fz.getNum());
+            return Result.success(i);
+        } else {
             return Result.failure(500, "删除失败");
         }
     }
@@ -80,6 +76,8 @@ public class FangZhuService {
         int updateNum = fangZhu.getNum();
         FangZhu fz = fangZhuMapper.selectByPrimaryKey(fangZhu.getId());
         int oldNum = fz.getNum();
+        // 判断总票数剩余是否够发
+        jpConfigService.checkJpNum(updateNum - oldNum);
         if (fz == null) {
             return Result.failure(500, "经销商不存在");
         }
@@ -104,8 +102,8 @@ public class FangZhuService {
         if (i > 0) {
             // 减少总酒票数
 //            if (fangZhu.getNum() > fz.getNum()) {
-                // 增加酒票 或 减少酒票，修改总票数
-                jpConfigService.addJpNum(updateNum - oldNum);
+            // 增加酒票 或 减少酒票，修改总票数
+            jpConfigService.addJpNum(updateNum - oldNum);
 //            }
             return Result.success(i);
         } else {

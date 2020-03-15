@@ -131,8 +131,11 @@ public class JiuFangService {
         if (yk == null) {
             throw new ServiceException(500, "游客未认证，不能进入酒坊");
         }
-        if (yk.getJpNum() < 1) {
-            throw new ServiceException(500, "游客没有酒票，不能进入酒坊");
+        // 经销商创建的房间邀请游客，游客不需要酒票
+        if (tp == 2) {
+            if (yk.getJpNum() < 1) {
+                throw new ServiceException(500, "游客没有酒票，不能进入酒坊");
+            }
         }
         /**
          * 判断是否已进入房间
@@ -362,6 +365,7 @@ public class JiuFangService {
         // 酒坊内酒票数，根据规则分配这些酒票到对应游客
         int num = jiuFang.getNum();
         List<Map<String, Object>> scoreList = jiuFangYouKeLogMapper.queryScoreByJfId(jfId);
+        List<Map<String, Object>> timeList = jiuFangYouKeLogMapper.queryScoreByJfIdOrderByUpdateTimeDesc(jfId);
         if (CollectionUtils.isEmpty(scoreList)) {
             throw new ServiceException(500, "酒坊空空没有游客");
         }
@@ -369,18 +373,25 @@ public class JiuFangService {
          * 判断ord是否一致，不一致则返回空数组，小程序继续请求
          * 设置超时，如果规定时间内还是不一致则返回
          */
-        long maxTime = System.currentTimeMillis();// 离最新时间的差
-        long nowTime = System.currentTimeMillis();
-        // 获取最大时间
-        for (Map<String, Object> map : scoreList) {
-            if (map.get("updateTime") != null) {
-                if (maxTime > (System.currentTimeMillis() - ((Date) map.get("updateTime")).getTime())) {
-                    maxTime = System.currentTimeMillis() - ((Date) map.get("updateTime")).getTime();
-                }
-            }
+        Map<String, Object> timeMap = timeList.get(0);
+        // 没有任何游客上报分数，则等待游客上报结果后再返回排行榜
+        if (timeMap.get("updateTime") == null) {
+            return Result.success(new ArrayList<>());
         }
+        // 当前时间 减去 最近一次提交游戏结果的时间 的时间差
+        long maxTime =System.currentTimeMillis() - ((Date) timeMap.get("updateTime")).getTime();;// 离最新时间的差
+//        long nowTime = System.currentTimeMillis();
+//        // 获取最大时间
+//        for (Map<String, Object> map : scoreList) {
+//            if (map.get("updateTime") != null) {
+//                if (maxTime > (System.currentTimeMillis() - ((Date) map.get("updateTime")).getTime())) {
+//                    maxTime = System.currentTimeMillis() - ((Date) map.get("updateTime")).getTime();
+//                }
+//            }
+//        }
         // 四秒内都要检查游戏分数上报是否一致
         logger.warn("maxTime:"+maxTime);
+        // 时间差小于 几秒内，都要检查数据一致性
         if (maxTime < rankTimeOut) {
 //        Map<String, Object> map = scoreList.get(0);
 //        int ord = MapUtils.getIntValue(map, "ord");
