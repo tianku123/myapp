@@ -1,5 +1,7 @@
 package rh.study.knowledge.service.jiufang;
 
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,6 +40,9 @@ public class JiuFangService {
     @Autowired
     private JpConfigService jpConfigService;
 
+    @Autowired
+    private JiuFangRankMapper jiuFangRankMapper;
+
     @Transactional
     public Result save(JiuFang jiuFang) {
         FangZhu fz = new FangZhu();
@@ -68,27 +73,27 @@ public class JiuFangService {
         }
         int i = jiuFangMapper.insertSelective(jiuFang);
         if (i > 0) {
-//            if (fz != null) {// 减去经销商剩余酒票
-//                // 增加已发出酒票数
+            if (fz != null) {// 减去经销商剩余酒票
+                // 增加已发出酒票数
 //                fz.setFcNum(fz.getFcNum() + jiuFang.getNum());
 //                fangZhuMapper.updateByPrimaryKey(fz);
-//            } else if (yk != null) {// 减去游客剩余酒票
-//                // 游客减少酒票
+            } else if (yk != null) {// 减去游客剩余酒票
+                // 游客减少酒票
 //                yk.setJpNum(yk.getJpNum() - jiuFang.getNum());
 //                youKeMapper.updateByPrimaryKey(yk);
-//                /**
-//                 * 游客需要进入游客列表，参与游戏分酒票
-//                 */
-//                JiuFangYouKeLog jiuFangYouKeLog = new JiuFangYouKeLog();
-//                jiuFangYouKeLog.setJfId(jiuFang.getId());
-//                jiuFangYouKeLog.setOpenid(yk.getOpenid());
-//                // 1:经销商；2:游客
-//                jiuFangYouKeLog.setJfTp(jiuFang.getTp());
-//                // 1:筛子;2:病毒大作战
-//                jiuFangYouKeLog.setYxTp(jiuFang.getYxTp());
-//                jiuFangYouKeLog.setCreateTime(new Date());
-//                jiuFangYouKeLogMapper.insertSelective(jiuFangYouKeLog);
-//            }
+                /**
+                 * 游客需要进入游客列表，参与游戏分酒票
+                 */
+                JiuFangYouKeLog jiuFangYouKeLog = new JiuFangYouKeLog();
+                jiuFangYouKeLog.setJfId(jiuFang.getId());
+                jiuFangYouKeLog.setOpenid(yk.getOpenid());
+                // 1:经销商；2:游客
+                jiuFangYouKeLog.setJfTp(jiuFang.getTp());
+                // 1:筛子;2:病毒大作战
+                jiuFangYouKeLog.setYxTp(jiuFang.getYxTp());
+                jiuFangYouKeLog.setCreateTime(new Date());
+                jiuFangYouKeLogMapper.insertSelective(jiuFangYouKeLog);
+            }
             return Result.success(jiuFang.getId());
         } else {
             return Result.failure(500, "创建失败");
@@ -204,20 +209,9 @@ public class JiuFangService {
                 fangZhuMapper.updateByPrimaryKey(fz);
             } else if (yk != null) {// 减去游客剩余酒票
                 // 游客减少酒票
-                yk.setJpNum(yk.getJpNum() - jiuFang.getNum());
-                youKeMapper.updateByPrimaryKey(yk);
-                /**
-                 * 游客需要进入游客列表，参与游戏分酒票
-                 */
-                JiuFangYouKeLog jiuFangYouKeLog2 = new JiuFangYouKeLog();
-                jiuFangYouKeLog2.setJfId(jiuFang.getId());
-                jiuFangYouKeLog2.setOpenid(yk.getOpenid());
-                // 1:经销商；2:游客
-                jiuFangYouKeLog2.setJfTp(jiuFang.getTp());
-                // 1:筛子;2:病毒大作战
-                jiuFangYouKeLog2.setYxTp(jiuFang.getYxTp());
-                jiuFangYouKeLog2.setCreateTime(new Date());
-                jiuFangYouKeLogMapper.insertSelective(jiuFangYouKeLog2);
+//                yk.setJpNum(yk.getJpNum() - jiuFang.getNum());
+//                youKeMapper.updateByPrimaryKey(yk);
+
             }
             for (Map<String, Object> map : ykList) {
                 String openid = MapUtils.getString(map, "openid");
@@ -314,9 +308,30 @@ public class JiuFangService {
         if (jiuFang == null) {
             throw new ServiceException(500, "酒坊不存在");
         }
-//        if (jiuFang.getStat() != 2) {
-//            throw new ServiceException(500, "酒坊内游戏未结束");
-//        }
+        JiuFangRank jr = new JiuFangRank();
+        jr.setJfId(jiuFang.getId());
+        jr = jiuFangRankMapper.selectOne(jr);
+        if (jr != null) {
+            JSONArray jsonArray = JSONArray.parseArray(jr.getRankJson());
+            List<Map<String, Object>> resList = new ArrayList<>();
+            Map<String, Object> resMap;
+            for (int i = 0; i < jsonArray.size(); i++) {
+                JSONObject jsonObject = jsonArray.getJSONObject(i);
+                resMap = new HashMap<>();
+                resMap.put("ord", jsonObject.get("ord"));
+                resMap.put("one", jsonObject.get("one"));
+                resMap.put("two", jsonObject.get("two"));
+                resMap.put("three", jsonObject.get("three"));
+                resMap.put("total", jsonObject.get("total"));
+                resMap.put("nickName", jsonObject.get("nickName"));
+                resMap.put("avatarUrl", jsonObject.get("avatarUrl"));
+                resMap.put("gender", jsonObject.get("gender"));
+                resMap.put("jpNum", jsonObject.get("jpNum"));
+                resMap.put("openid", jsonObject.get("openid"));
+                resList.add(resMap);
+            }
+            return Result.success(resList);
+        }
         // 创建酒坊者：1:供应商；2:游客
         int tp = jiuFang.getTp();
         // 1:筛子;2:病毒大作战
@@ -337,6 +352,12 @@ public class JiuFangService {
             if (3 == MapUtils.getIntValue(map, "ord")) {
                 // 计算分数
                 calcScore(scoreList, jiuFang);
+                // 记录排行榜
+                JiuFangRank jiuFangRank = new JiuFangRank();
+                jiuFangRank.setJfId(jiuFang.getId());
+                jiuFangRank.setRankJson(JSONArray.toJSONString(scoreList));
+                jiuFangRank.setCreateTime(new Date());
+                jiuFangRankMapper.insert(jiuFangRank);
             } else if (2 == MapUtils.getIntValue(map, "ord")) {
                 // 返回排行榜
                 return Result.success(scoreList);
@@ -349,6 +370,12 @@ public class JiuFangService {
             if (1 == MapUtils.getIntValue(map, "ord")) {
                 // 计算分数
                 calcScore(scoreList, jiuFang);
+                // 记录排行榜
+                JiuFangRank jiuFangRank = new JiuFangRank();
+                jiuFangRank.setJfId(jiuFang.getId());
+                jiuFangRank.setRankJson(JSONArray.toJSONString(scoreList));
+                jiuFangRank.setCreateTime(new Date());
+                jiuFangRankMapper.insert(jiuFangRank);
             }
         }
 

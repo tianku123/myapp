@@ -83,14 +83,20 @@ public class YouKeService {
             // 初始化我的战绩
             YkSuccess ys = new YkSuccess();
             ys.setYkOpenid(yk.getOpenid());
-            ys.setNum(0);
             ys.setYxTp(1);
-            ykSuccessMapper.insert(ys);
+            YkSuccess exy = ykSuccessMapper.selectOne(ys);
+            if (exy == null) {
+                ys.setNum(0);
+                ykSuccessMapper.insert(ys);
+            }
             ys = new YkSuccess();
             ys.setYkOpenid(yk.getOpenid());
-            ys.setNum(0);
             ys.setYxTp(2);
-            ykSuccessMapper.insert(ys);
+            exy = ykSuccessMapper.selectOne(ys);
+            if (exy == null) {
+                ys.setNum(0);
+                ykSuccessMapper.insert(ys);
+            }
 //            youk = youKeMapper.selectByPrimaryKey(youk.getId());
             Map<String, Object> resMap = new HashMap<>();
             resMap.put("openid", yk.getOpenid());

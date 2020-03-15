@@ -17,6 +17,7 @@ import rh.study.knowledge.common.result.ServiceException;
 import rh.study.knowledge.entity.jiufang.FangZhu;
 import rh.study.knowledge.entity.jiufang.YouKe;
 import rh.study.knowledge.service.jiufang.FangZhuService;
+import rh.study.knowledge.service.jiufang.PrizeConfigService;
 import rh.study.knowledge.service.jiufang.YouKeService;
 import rh.study.knowledge.util.aes.AESForWeixinGetPhoneNumber;
 import rh.study.knowledge.entity.wechat.WeixinPhoneDecryptInfo;
@@ -47,6 +48,14 @@ public class CommonController {
     @Autowired
     private YouKeService youKeService;
 
+    @Autowired
+    private PrizeConfigService prizeConfigService;
+
+
+    @GetMapping(value = "prizeConfig")
+    public Result prizeConfig() {
+        return prizeConfigService.list();
+    }
 
     @PostMapping(value = "auth")
     public Result auth(

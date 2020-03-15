@@ -36,7 +36,7 @@ public class JiuFang {
     private Integer yxTp;
     // 酒坊进入的游客人数
     private Integer perNum;
-    // 状态：0 准备中，1：开始，2，结束
+    // 状态：0 准备中，1：开始，2，结束，3：已获得最终排行榜（只能获取最终排行榜一次）
     private Integer stat;
 
     private Date createTime;
