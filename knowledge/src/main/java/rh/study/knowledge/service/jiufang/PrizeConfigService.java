@@ -73,14 +73,15 @@ public class PrizeConfigService {
         }
         if (total > youKe.getJpNum()) {
             throw new ServiceException(500, "游客酒票不足");
-        }
-        if (CollectionUtils.isNotEmpty(ykPrizeLogList)) {
-            // 减游客酒票
-            youKe.setJpNum(youKe.getJpNum() - total);
-            int i = youKeMapper.updateByPrimaryKey(youKe);
-            if (i > 0) {
-                for (YkPrizeLog prizeLog : ykPrizeLogList) {
-                    ykPrizeLogMapper.insert(prizeLog);
+        } else {
+            if (CollectionUtils.isNotEmpty(ykPrizeLogList)) {
+                // 减游客酒票
+                youKe.setJpNum(youKe.getJpNum() - total);
+                int i = youKeMapper.updateByPrimaryKey(youKe);
+                if (i > 0) {
+                    for (YkPrizeLog prizeLog : ykPrizeLogList) {
+                        ykPrizeLogMapper.insert(prizeLog);
+                    }
                 }
             }
         }

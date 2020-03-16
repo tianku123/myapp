@@ -6,7 +6,7 @@
 5、活动截止日期，锁定数据，每个房间的排行榜前三名可以获得额外奖励。
 6、活动截止日期，游戏参与者可以根据拥有酒票数量兑换实物奖励。
 
-
+南京市,无锡市,徐州市,常州市,苏州市,南通市,连云港市,淮安市,盐城市,扬州市,镇江市,泰州市,宿迁市,,
 GET https://api.weixin.qq.com/sns/jscode2session?appid=APPID&secret=SECRET&js_code=JSCODE&grant_type=authorization_code
 
 https://api.weixin.qq.com/sns/jscode2session?appid=wx042d9b5b159808fe&secret=91135584368c0ce12474f76643279762&js_code=07113O762DTfOO07Xj862yBQ76213O7x&grant_type=authorization_code
@@ -14,7 +14,7 @@ https://api.weixin.qq.com/sns/jscode2session?appid=wx042d9b5b159808fe&secret=911
 
 http://localhost:8080//api/wechat/common/openid?code=0212dn6y1c2buc0Nwd7y1mrE6y12dn6k
 
-github  : 54d85ed569f39fd3c4410978077d29f34fd50767
+github  : f7e61a4b8dac29ad0e2b3f77cd7eb5355b303924
 
 ryan/wsdsl19930519!@#
 IP：101.132.126.120
@@ -33,5 +33,11 @@ http://localhost:8080//api/wechat/fz/authTest?phoneNumber=18512548285&openid=111
 游戏开始了，每个游客请求接口获取对应的点子，然后酒坊页面显示点子的排行榜  
 每局都有排行榜  每一次还要累加
 三局后公布最终胜负排行榜
+
+
+
+106.14.213.164 root/1ZXG0HpDC9xXWm1v 
+ssh登陆：sujiu/GXZMIc8PSl1xMMkb 
+数据库： root/3862441ll
 
 

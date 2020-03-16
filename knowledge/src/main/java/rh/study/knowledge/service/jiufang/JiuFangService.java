@@ -570,7 +570,8 @@ public class JiuFangService {
             ykSuccess.setYxTp(yxTp);
             ykSuccess = ykSuccessMapper.selectOne(ykSuccess);
             if (ykSuccess != null) {
-                ykSuccess.setNum(ykSuccess.getNum() + num);
+                // 进入房间需要先减去一张票，然后再加上赢得酒票
+                ykSuccess.setNum(ykSuccess.getNum() + num - 1);
                 ykSuccessMapper.updateByPrimaryKey(ykSuccess);
             }
         }

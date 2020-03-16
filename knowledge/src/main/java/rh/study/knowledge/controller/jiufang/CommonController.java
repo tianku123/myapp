@@ -165,6 +165,7 @@ public class CommonController {
 
     private Result getUserInfoData(String openid) {
         Map<String, Object> map = new HashMap<>();
+        map.put("openid", openid);
         // 根据openid 查询该经销商是否已经微信认证
         FangZhu fangZhu = fangZhuService.queryByOpenid(openid);
         if (fangZhu == null) {
