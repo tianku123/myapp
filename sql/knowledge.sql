@@ -11,7 +11,7 @@
  Target Server Version : 50022
  File Encoding         : 65001
 
- Date: 12/03/2020 11:46:37
+ Date: 16/03/2020 23:30:46
 */
 
 SET NAMES utf8mb4;
@@ -39,18 +39,7 @@ CREATE TABLE `fangzhu`  (
   `stat` tinyint(255) DEFAULT NULL COMMENT '状态：0删除，1创建状态，2微信认证过',
   `update_time` datetime DEFAULT NULL COMMENT '更新时间',
   PRIMARY KEY USING BTREE (`id`)
-) ENGINE = InnoDB AUTO_INCREMENT = 8 CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = 'InnoDB free: 4096 kB' ROW_FORMAT = Compact;
-
--- ----------------------------
--- Records of fangzhu
--- ----------------------------
-INSERT INTO `fangzhu` VALUES (1, 'rh_openid', NULL, NULL, NULL, NULL, NULL, NULL, '18512548285', '2020-03-01 17:04:02', '阮家经销商', 101, NULL, NULL, 2, '2020-03-03 21:46:11');
-INSERT INTO `fangzhu` VALUES (2, NULL, NULL, NULL, 'https://wx.qlogo.cn/mmopen/vi_32/Q0j4TwGTfTJ3FD4hxxFHJZndfHFW7GNhlEJODRBJC7bbYbfT6wPoGe282Cz90YiahyMSiabwN0OcPysY7hbVkOPg/132', NULL, NULL, NULL, '15955807165', '2020-03-01 18:00:56', '酒坊2', 1, NULL, NULL, 0, NULL);
-INSERT INTO `fangzhu` VALUES (3, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '15955807165', '2020-03-01 18:55:05', '11', 111, NULL, NULL, 1, NULL);
-INSERT INTO `fangzhu` VALUES (4, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '18512345678', '2020-03-01 22:50:52', '22', 11, NULL, NULL, 1, NULL);
-INSERT INTO `fangzhu` VALUES (5, 'Jiangsu', NULL, '冬来', NULL, NULL, NULL, NULL, '15900005555', '2020-03-03 22:52:42', '22', 11, NULL, NULL, 0, '2020-03-03 23:27:18');
-INSERT INTO `fangzhu` VALUES (6, 'Jiangsu', NULL, '冬来', NULL, NULL, NULL, NULL, '15900005555', '2020-03-03 23:27:27', '2222', 111, NULL, NULL, 2, '2020-03-03 23:31:19');
-INSERT INTO `fangzhu` VALUES (7, 'ov9XU5IY3-4gAs1ul6RD8t1Zd7QA', NULL, '冬来', 'https://wx.qlogo.cn/mmopen/vi_32/Q0j4TwGTfTJ3FD4hxxFHJZndfHFW7GNhlEJODRBJC7bbYbfT6wPoGe282Cz90YiahyMSiabwN0OcPysY7hbVkOPg/132', '1', 'Jiangsu', 'Nanjing', '18762091440', '2020-03-04 12:01:09', '冬来酒馆', 100, NULL, NULL, 2, '2020-03-04 12:01:22');
+) ENGINE = InnoDB AUTO_INCREMENT = 11 CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = 'InnoDB free: 3072 kB' ROW_FORMAT = Compact;
 
 -- ----------------------------
 -- Table structure for jf_yk_log
@@ -71,16 +60,10 @@ CREATE TABLE `jf_yk_log`  (
   `ord` int(10) DEFAULT 0 COMMENT '第几局游戏',
   `total` int(10) DEFAULT 0 COMMENT '每局汇总',
   `create_time` datetime DEFAULT NULL,
+  `update_time` datetime DEFAULT NULL,
   PRIMARY KEY USING BTREE (`id`),
   UNIQUE INDEX `idx_jf_id_openid` USING BTREE(`jf_id`, `openid`)
-) ENGINE = InnoDB AUTO_INCREMENT = 4 CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = 'InnoDB free: 4096 kB' ROW_FORMAT = Compact;
-
--- ----------------------------
--- Records of jf_yk_log
--- ----------------------------
-INSERT INTO `jf_yk_log` VALUES (1, NULL, 1, 0, 'yk_openid2', NULL, NULL, NULL, 0, 0, 0, NULL, 0, NULL);
-INSERT INTO `jf_yk_log` VALUES (2, NULL, 1, 0, 'yk_openid3', NULL, NULL, NULL, 5, 6, 3, 3, 14, NULL);
-INSERT INTO `jf_yk_log` VALUES (3, NULL, 3, 0, 'yk_openid3', 1, 2, NULL, 3, 0, 0, 1, 3, '2020-03-11 21:49:06');
+) ENGINE = InnoDB AUTO_INCREMENT = 15 CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = 'InnoDB free: 3072 kB' ROW_FORMAT = Compact;
 
 -- ----------------------------
 -- Table structure for jiufang
@@ -98,14 +81,19 @@ CREATE TABLE `jiufang`  (
   `stat` tinyint(2) DEFAULT 0 COMMENT '游戏状态，0：准备中，1：已开始，2：游戏结束',
   `create_time` datetime DEFAULT NULL,
   PRIMARY KEY USING BTREE (`id`)
-) ENGINE = InnoDB AUTO_INCREMENT = 4 CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = 'InnoDB free: 4096 kB' ROW_FORMAT = Compact;
+) ENGINE = InnoDB AUTO_INCREMENT = 9 CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = 'InnoDB free: 3072 kB' ROW_FORMAT = Compact;
 
 -- ----------------------------
--- Records of jiufang
+-- Table structure for jiufang_rank
 -- ----------------------------
-INSERT INTO `jiufang` VALUES (1, NULL, 'rh_openid', 1, '阮家酒坊', 1, 1, 0, 2, '2020-03-11 19:53:42');
-INSERT INTO `jiufang` VALUES (2, NULL, 'rh_openid', 1, '阮家酒坊', 1, 1, 0, 0, '2020-03-11 19:57:53');
-INSERT INTO `jiufang` VALUES (3, NULL, 'yk_openid1', 1, '游客酒坊', 1, 2, 1, 0, '2020-03-11 20:02:05');
+DROP TABLE IF EXISTS `jiufang_rank`;
+CREATE TABLE `jiufang_rank`  (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `jf_id` bigint(20) DEFAULT NULL,
+  `rank_json` varchar(2000) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT NULL,
+  `create_time` datetime DEFAULT NULL,
+  PRIMARY KEY USING BTREE (`id`)
+) ENGINE = InnoDB AUTO_INCREMENT = 14 CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = 'InnoDB free: 3072 kB' ROW_FORMAT = Compact;
 
 -- ----------------------------
 -- Table structure for jp_config
@@ -117,12 +105,33 @@ CREATE TABLE `jp_config`  (
   `fc_num` int(10) DEFAULT NULL COMMENT '已发出票数',
   `sy_num` int(10) DEFAULT NULL COMMENT '剩余票数',
   PRIMARY KEY USING BTREE (`id`)
-) ENGINE = InnoDB AUTO_INCREMENT = 2 CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = 'InnoDB free: 4096 kB' ROW_FORMAT = Compact;
+) ENGINE = InnoDB AUTO_INCREMENT = 2 CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = 'InnoDB free: 3072 kB' ROW_FORMAT = Compact;
 
 -- ----------------------------
--- Records of jp_config
+-- Table structure for prize_config
 -- ----------------------------
-INSERT INTO `jp_config` VALUES (1, 20000, 0, 20000);
+DROP TABLE IF EXISTS `prize_config`;
+CREATE TABLE `prize_config`  (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `name` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT NULL,
+  `num` int(11) DEFAULT NULL,
+  `img` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT NULL,
+  PRIMARY KEY USING BTREE (`id`)
+) ENGINE = InnoDB AUTO_INCREMENT = 4 CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = 'InnoDB free: 3072 kB' ROW_FORMAT = Compact;
+
+-- ----------------------------
+-- Table structure for yk_prize_log
+-- ----------------------------
+DROP TABLE IF EXISTS `yk_prize_log`;
+CREATE TABLE `yk_prize_log`  (
+  `id` bigint(10) NOT NULL AUTO_INCREMENT,
+  `yk_id` bigint(10) DEFAULT NULL COMMENT '游客id',
+  `yk_openid` varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' COMMENT '游客openid',
+  `num` int(11) DEFAULT 0 COMMENT '兑奖数量',
+  `create_time` datetime DEFAULT NULL,
+  `prize_config_id` bigint(20) DEFAULT NULL,
+  PRIMARY KEY USING BTREE (`id`)
+) ENGINE = InnoDB AUTO_INCREMENT = 20 CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = 'InnoDB free: 3072 kB' ROW_FORMAT = Compact;
 
 -- ----------------------------
 -- Table structure for yk_success
@@ -136,7 +145,7 @@ CREATE TABLE `yk_success`  (
   `num` int(11) DEFAULT 0 COMMENT '赢得酒票数',
   PRIMARY KEY USING BTREE (`id`),
   UNIQUE INDEX `yk_success_yk_openid_tp` USING BTREE(`yk_openid`, `yx_tp`)
-) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = 'InnoDB free: 4096 kB' ROW_FORMAT = Compact;
+) ENGINE = InnoDB AUTO_INCREMENT = 13 CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = 'InnoDB free: 3072 kB' ROW_FORMAT = Compact;
 
 -- ----------------------------
 -- Table structure for youke
@@ -155,19 +164,13 @@ CREATE TABLE `youke`  (
   `create_time` datetime DEFAULT NULL COMMENT '创建时间',
   `update_time` datetime DEFAULT NULL COMMENT '更新时间',
   `address` varchar(500) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT NULL COMMENT '收货地址',
+  `sh_name` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT NULL COMMENT '收货人名字',
   `sh_phone` varchar(20) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT NULL COMMENT '收货手机号码',
   `yx_num` int(11) DEFAULT 0 COMMENT '游戏次数',
   `jp_num` int(11) DEFAULT 0 COMMENT '酒票数',
   `free_num` int(11) DEFAULT 0 COMMENT '被邀请进入酒坊免费获取的酒票数',
   PRIMARY KEY USING BTREE (`id`)
-) ENGINE = InnoDB AUTO_INCREMENT = 4 CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = 'InnoDB free: 4096 kB' ROW_FORMAT = Compact;
-
--- ----------------------------
--- Records of youke
--- ----------------------------
-INSERT INTO `youke` VALUES (1, 'yk_openid1', NULL, '冬来', 'https://wx.qlogo.cn/mmopen/vi_32/Q0j4TwGTfTJ3FD4hxxFHJZndfHFW7GNhlEJODRBJC7bbYbfT6wPoGe282Cz90YiahyMSiabwN0OcPysY7hbVkOPg/132', NULL, 'Jiangsu', 'Nanjing', '18762091440', NULL, '2020-03-11 19:59:17', NULL, NULL, 0, 1, 1);
-INSERT INTO `youke` VALUES (2, 'yk_openid2', NULL, '游客2', 'https://wx.qlogo.cn/mmopen/vi_32/Q0j4TwGTfTJ3FD4hxxFHJZndfHFW7GNhlEJODRBJC7bbYbfT6wPoGe282Cz90YiahyMSiabwN0OcPysY7hbVkOPg/132', NULL, 'Jiangsu', 'Nanjing', '18762091440', NULL, '2020-03-11 20:05:11', NULL, NULL, 0, 1, 1);
-INSERT INTO `youke` VALUES (3, 'yk_openid3', NULL, '游客3', 'https://wx.qlogo.cn/mmopen/vi_32/Q0j4TwGTfTJ3FD4hxxFHJZndfHFW7GNhlEJODRBJC7bbYbfT6wPoGe282Cz90YiahyMSiabwN0OcPysY7hbVkOPg/132', NULL, 'Jiangsu', 'Nanjing', '18762091440', NULL, '2020-03-11 20:08:05', NULL, NULL, 0, 1, 1);
+) ENGINE = InnoDB AUTO_INCREMENT = 11 CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = 'InnoDB free: 3072 kB' ROW_FORMAT = Compact;
 
 -- ----------------------------
 -- Table structure for yx_log
@@ -182,6 +185,6 @@ CREATE TABLE `yx_log`  (
   `ord` int(10) DEFAULT NULL COMMENT '第几局',
   PRIMARY KEY USING BTREE (`id`),
   INDEX `idx_yx_log_tzz` USING BTREE(`jf_yk_log_id`)
-) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = 'InnoDB free: 4096 kB' ROW_FORMAT = Compact;
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = 'InnoDB free: 3072 kB' ROW_FORMAT = Compact;
 
 SET FOREIGN_KEY_CHECKS = 1;
