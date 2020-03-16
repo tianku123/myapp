@@ -17,11 +17,11 @@ import rh.study.knowledge.common.result.ServiceException;
 import rh.study.knowledge.entity.jiufang.FangZhu;
 import rh.study.knowledge.entity.jiufang.YkPrizeLog;
 import rh.study.knowledge.entity.jiufang.YouKe;
+import rh.study.knowledge.entity.wechat.WeixinPhoneDecryptInfo;
 import rh.study.knowledge.service.jiufang.FangZhuService;
 import rh.study.knowledge.service.jiufang.PrizeConfigService;
 import rh.study.knowledge.service.jiufang.YouKeService;
 import rh.study.knowledge.util.aes.AESForWeixinGetPhoneNumber;
-import rh.study.knowledge.entity.wechat.WeixinPhoneDecryptInfo;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -70,6 +70,7 @@ public class CommonController {
         }
         return prizeConfigService.prizeLog(ykPrizeLog);
     }
+
     @PostMapping(value = "auth")
     public Result auth(
             @RequestBody FangZhu fangZhu
@@ -100,12 +101,30 @@ public class CommonController {
         }
     }
 
+    /**
+     * 通过调用微信接口获取小程序openid
+     * @param code
+     * @return
+     */
     @GetMapping(value = "openid")
     public Result openid(@RequestParam String code) {
         if (StringUtils.isEmpty(code)) {
             Result.failure(400, "参数错误");
         }
         return getOpenid(code);
+    }
+
+    /**
+     * 根据openid获取用户信息
+     * @param openid
+     * @return
+     */
+    @GetMapping(value = "getUserInfo")
+    public Result getUserInfo(@RequestParam String openid) {
+        if (StringUtils.isEmpty(openid)) {
+            Result.failure(400, "参数错误");
+        }
+        return getUserInfoData(openid);
     }
 
     @GetMapping(value = "area")
@@ -128,12 +147,12 @@ public class CommonController {
             @RequestParam String iv,
             @RequestParam String encryptedData) {
         try {
-            AESForWeixinGetPhoneNumber aes=new AESForWeixinGetPhoneNumber(encryptedData,sessionKey,iv);
-            WeixinPhoneDecryptInfo info=aes.decrypt();
-            if (null==info){
+            AESForWeixinGetPhoneNumber aes = new AESForWeixinGetPhoneNumber(encryptedData, sessionKey, iv);
+            WeixinPhoneDecryptInfo info = aes.decrypt();
+            if (null == info) {
                 return Result.failure(500, "获取失败");
-            }else {
-                if (!info.getWeixinWaterMark().getAppid().equals(appid)){
+            } else {
+                if (!info.getWeixinWaterMark().getAppid().equals(appid)) {
                     return Result.failure(500, "appid error");
                 }
             }
@@ -144,6 +163,45 @@ public class CommonController {
     }
 
 
+    private Result getUserInfoData(String openid) {
+        Map<String, Object> map = new HashMap<>();
+        // 根据openid 查询该经销商是否已经微信认证
+        FangZhu fangZhu = fangZhuService.queryByOpenid(openid);
+        if (fangZhu == null) {
+            map.put("isOwner", false);
+            // 不是经销商，查询是否为游客
+            YouKe youKe = youKeService.queryByOpenid(openid);
+            // 是否为游客
+
+            if (youKe != null) {
+                map.put("isOwner", true);
+                //1表示经销商，2：表示游客
+                map.put("tp", 2);
+                // 是游客则返回游客信息
+                // 游客参与游戏次数
+                map.put("yxNum", youKe.getYxNum());
+                // 游客酒票数
+                map.put("jpNum", youKe.getJpNum());
+                map.put("nickName", youKe.getNickName());
+                map.put("avatarUrl", youKe.getAvatarUrl());
+                map.put("gender", youKe.getGender());
+                map.put("freeNum", youKe.getFreeNum());
+            } else {
+                throw new ServiceException(500, "用户不存在");
+            }
+        } else {
+            map.put("isOwner", true);
+            //1表示经销商，2：表示游客
+            map.put("tp", 1);
+            // 经销商剩余酒票
+            map.put("jpNum", (fangZhu.getNum() - fangZhu.getFcNum()));
+            map.put("nickName", fangZhu.getNickName());
+            map.put("avatarUrl", fangZhu.getAvatarUrl());
+            map.put("gender", fangZhu.getGender());
+        }
+        return Result.success(map);
+
+    }
 
     private Result getOpenid(String code) {
         // GET https://api.weixin.qq.com/sns/jscode2session?appid=APPID&secret=SECRET&js_code=JSCODE&grant_type=authorization_code
