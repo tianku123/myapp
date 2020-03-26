@@ -26,6 +26,12 @@ public class YkPrizeLog {
     private Integer num;
 
     private Date createTime;
+    // 收货地址
+    private String address;
+    // 收货手机号码
+    private String shPhone;
+    // 收货人
+    private String shName;
 
     @Transient
     private String prizeStr;

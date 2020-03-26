@@ -71,6 +71,28 @@ public class CommonController {
         return prizeConfigService.prizeLog(ykPrizeLog);
     }
 
+    @PostMapping(value = "prizeLogAddress")
+    public Result prizeLogAddress(
+            @RequestBody YkPrizeLog ykPrizeLog
+    ) {
+        if (StringUtils.isEmpty(ykPrizeLog.getYkOpenid())) {
+            throw new ServiceException(400, "openid必传");
+        }
+        if (StringUtils.isEmpty(ykPrizeLog.getPrizeStr())) {
+            throw new ServiceException(400, "prizeStr必传");
+        }
+        if (StringUtils.isEmpty(ykPrizeLog.getShName() )) {
+            throw new ServiceException(400, "shName必传");
+        }
+        if (StringUtils.isEmpty(ykPrizeLog.getShPhone() )) {
+            throw new ServiceException(400, "shPhone必传");
+        }
+        if (StringUtils.isEmpty(ykPrizeLog.getAddress() )) {
+            throw new ServiceException(400, "address必传");
+        }
+        return prizeConfigService.prizeLogAddress(ykPrizeLog);
+    }
+
     @PostMapping(value = "auth")
     public Result auth(
             @RequestBody FangZhu fangZhu
