@@ -387,14 +387,17 @@ public class RedisService {
                 map = timeMap.get(k);
                 for (String f : keysList) {
                     if ("memory_used".equals(f)) {
+                        double totalMemory = 12.5;
                         StringBuilder sb = new StringBuilder();
                         Double nc = MapUtils.getDouble(map, f, 0d);
                         if (nc / 1024 / 1024 >= 1024 ) {
                             nc = nc / 1024 / 1024 / 1024;
                             sb.append(DataUtil.decimalFormat.format(nc)).append(" GB");
+                            sb.append(" (").append(DataUtil.percentDecimalFormat.format(nc / totalMemory)).append(")");
                         } else {
                             nc = nc / 1024 / 1024;
                             sb.append(DataUtil.decimalFormat.format(nc)).append(" MB");
+                            sb.append(" (").append(DataUtil.percentDecimalFormat.format(nc / (totalMemory * 1024))).append(")");
                         }
                         resMap.put(f+k, sb.toString());
                     } else if ("commands".equals(f)) {
